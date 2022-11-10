@@ -19,15 +19,15 @@ import java.util.Random;
 
 import org.apache.commons.lang3.RandomStringUtils;
 
-public class StringGenerator {
-
+public final class StringGenerator {
     private static final String ALPHABET = "abcdefghijklmnopqrstuvwxyz";
     private static final String GENERATE = "$generate";
-
     private static final Random RANDOM = new Random();
 
-    public static String generateWord(int keySize) {
+    private StringGenerator() {
+    }
 
+    public static String generateWord(int keySize) {
         StringBuilder result = new StringBuilder();
 
         String base = generateBase(keySize);

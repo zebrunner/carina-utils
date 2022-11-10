@@ -32,8 +32,6 @@ import org.testng.Reporter;
 
 public interface IMessager {
 
-    Pattern CRYPTO_PATTERN = Pattern.compile(Configuration.get(Configuration.Parameter.CRYPTO_PATTERN));
-
     String getPattern();
 
     Logger getLogger();
@@ -91,11 +89,12 @@ public interface IMessager {
      * @return generated message
      */
     default String create(String... args) {
+        Pattern cryptoPattern = Pattern.compile(Configuration.get(Configuration.Parameter.CRYPTO_PATTERN));
         String message = "";
         try {
             for (int i = 0; i < args.length; i++) {
                 if (args[i] != null) {
-                    Matcher matcher = CRYPTO_PATTERN.matcher(args[i]);
+                    Matcher matcher = cryptoPattern.matcher(args[i]);
                     if (matcher.find()) {
                         int start = args[i].indexOf(':') + 1;
                         int end = args[i].indexOf('}');

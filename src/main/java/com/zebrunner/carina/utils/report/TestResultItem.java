@@ -15,7 +15,7 @@
  *******************************************************************************/
 package com.zebrunner.carina.utils.report;
 
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 
 public class TestResultItem {
     private String pack = null;
@@ -64,7 +64,7 @@ public class TestResultItem {
 
     public String getFailReason() {
         if (failReason != null) {
-            return new String(failReason.getBytes(), Charset.forName("UTF-8"));
+            return new String(failReason.getBytes(), StandardCharsets.UTF_8);
         } else {
             return failReason;
         }
@@ -72,7 +72,7 @@ public class TestResultItem {
     }
 
     public String hash() {
-        return String.valueOf(pack.hashCode()) + "-" + String.valueOf(test.hashCode());
+        return pack.hashCode() + "-" + test.hashCode();
     }
 
     public boolean isConfig() {

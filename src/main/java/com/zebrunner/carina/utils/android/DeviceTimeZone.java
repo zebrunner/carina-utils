@@ -17,7 +17,6 @@ package com.zebrunner.carina.utils.android;
 
 import java.lang.invoke.MethodHandles;
 import java.util.Calendar;
-import java.util.GregorianCalendar;
 import java.util.TimeZone;
 
 import org.joda.time.DateTimeZone;
@@ -28,9 +27,9 @@ public class DeviceTimeZone {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-    private boolean auto_time;
-    private boolean auto_timezone;
-    private TimeFormat time_format;
+    private boolean autoTime;
+    private boolean autoTimezone;
+    private TimeFormat timeFormat;
     private String timezone;
     private String gmt;
     private String setDeviceDateTime;
@@ -41,7 +40,7 @@ public class DeviceTimeZone {
     public enum TimeFormat {
         FORMAT_12("12"),
         FORMAT_24("24");
-        private String format;
+        private final String format;
 
         TimeFormat(String format) {
             this.format = format;
@@ -51,6 +50,7 @@ public class DeviceTimeZone {
             return format;
         }
 
+        @Override
         public String toString() {
             return format;
         }
@@ -128,6 +128,7 @@ public class DeviceTimeZone {
             return GMT;
         }
 
+        @Override
         public String toString() {
             return "TimeZoneFormat{" + "timeZone='" + timeZone + '\'' + ", settingsTZ='" + settingsTZ + '\'' + ", gmtTZ='" + gmtTZ + '\'' + ", abbr='"
                     + abbr + '\'' + '}';
@@ -135,9 +136,9 @@ public class DeviceTimeZone {
     }
 
     public DeviceTimeZone() {
-        this.auto_time = true;
-        this.auto_timezone = true;
-        this.time_format = TimeFormat.FORMAT_24;
+        this.autoTime = true;
+        this.autoTimezone = true;
+        this.timeFormat = TimeFormat.FORMAT_24;
         this.timezone = "";
         this.gmt = "";
         this.setDeviceDateTime = "";
@@ -149,20 +150,20 @@ public class DeviceTimeZone {
     /**
      * DeviceTimeZone
      *
-     * @param auto_time boolean
-     * @param auto_timezone boolean
-     * @param time_format AndroidService.TimeFormat
+     * @param autoTime boolean
+     * @param autoTimezone boolean
+     * @param timeFormat AndroidService.TimeFormat
      * @param timezone String
      * @param gmt String
      * @param setDeviceDateTime String
      * @param changeDateTime boolean
      * @param refreshDeviceTime boolean
      */
-    public DeviceTimeZone(boolean auto_time, boolean auto_timezone, TimeFormat time_format, String timezone, String gmt, String setDeviceDateTime,
+    public DeviceTimeZone(boolean autoTime, boolean autoTimezone, TimeFormat timeFormat, String timezone, String gmt, String setDeviceDateTime,
             boolean changeDateTime, boolean refreshDeviceTime) {
-        this.auto_time = auto_time;
-        this.auto_timezone = auto_timezone;
-        this.time_format = time_format;
+        this.autoTime = autoTime;
+        this.autoTimezone = autoTimezone;
+        this.timeFormat = timeFormat;
         this.timezone = timezone;
         if (gmt.isEmpty()) {
             this.gmt = getTZforID();
@@ -178,19 +179,19 @@ public class DeviceTimeZone {
     /**
      * DeviceTimeZone
      *
-     * @param auto_time boolean
-     * @param auto_timezone boolean
-     * @param time_format AndroidService.TimeFormat
+     * @param autoTime boolean
+     * @param autoTimezone boolean
+     * @param timeFormat AndroidService.TimeFormat
      * @param timezone String
      * @param setDeviceDateTime String
      * @param changeDateTime boolean
      * @param refreshDeviceTime boolean
      */
-    public DeviceTimeZone(boolean auto_time, boolean auto_timezone, TimeFormat time_format, String timezone, String setDeviceDateTime,
+    public DeviceTimeZone(boolean autoTime, boolean autoTimezone, TimeFormat timeFormat, String timezone, String setDeviceDateTime,
             boolean changeDateTime, boolean refreshDeviceTime) {
-        this.auto_time = auto_time;
-        this.auto_timezone = auto_timezone;
-        this.time_format = time_format;
+        this.autoTime = autoTime;
+        this.autoTimezone = autoTimezone;
+        this.timeFormat = timeFormat;
         this.timezone = timezone;
         this.gmt = getTZforID();
         this.setDeviceDateTime = setDeviceDateTime;
@@ -200,27 +201,27 @@ public class DeviceTimeZone {
     }
 
     public boolean isAutoTime() {
-        return auto_time;
+        return autoTime;
     }
 
-    public void setAutoTime(boolean auto_time) {
-        this.auto_time = auto_time;
+    public void setAutoTime(boolean autoTime) {
+        this.autoTime = autoTime;
     }
 
     public boolean isAutoTimezone() {
-        return auto_timezone;
+        return autoTimezone;
     }
 
-    public void setAutoTimezone(boolean auto_timezone) {
-        this.auto_timezone = auto_timezone;
+    public void setAutoTimezone(boolean autoTimezone) {
+        this.autoTimezone = autoTimezone;
     }
 
     public TimeFormat getTimeFormat() {
-        return time_format;
+        return timeFormat;
     }
 
-    public void setTimeFormat(TimeFormat time_format) {
-        this.time_format = time_format;
+    public void setTimeFormat(TimeFormat timeFormat) {
+        this.timeFormat = timeFormat;
     }
 
     public String getTimezone() {
@@ -280,7 +281,7 @@ public class DeviceTimeZone {
         try {
             return DateTimeZone.forID(tz).toTimeZone().observesDaylightTime();
         } catch (Exception e) {
-            LOGGER.error("Error during observing daylight time for: " + tz, e);
+            LOGGER.error("Error during observing daylight time for: {}", tz, e);
             return false;
         }
     }
@@ -289,13 +290,13 @@ public class DeviceTimeZone {
         try {
             return getTimezoneOffset(DateTimeZone.forID(tz).toTimeZone());
         } catch (Exception e) {
-            LOGGER.error("Error while getting timezone for: " + tz, e);
+            LOGGER.error("Error while getting timezone for: {}", tz, e);
             return "";
         }
     }
 
     public static String getTimezoneOffset(TimeZone tz) {
-        Calendar cal = GregorianCalendar.getInstance(tz);
+        Calendar cal = Calendar.getInstance(tz);
         int offsetInMillis = tz.getOffset(cal.getTimeInMillis());
 
         String offset = String.format("%02d:%02d", Math.abs(offsetInMillis / 3600000), Math.abs((offsetInMillis / 60000) % 60));
@@ -305,38 +306,38 @@ public class DeviceTimeZone {
 
     public static boolean compareTimezoneOffsets(String timezone1, String timezone2) {
 
-        LOGGER.info("Compare Timezone '" + timezone1 + "' and Timezone '" + timezone2 + "'.");
+        LOGGER.info("Compare Timezone '{}' and Timezone '{}'.", timezone1, timezone2);
         if (timezone1.isEmpty() || timezone2.isEmpty())
             return false;
         TimeZone tz1 = getTimezoneFromOffset(timezone1);
         TimeZone tz2 = getTimezoneFromOffset(timezone2);
 
         int diff = compare(tz1, tz2);
-        LOGGER.info("Timezone comparison return difference: " + diff);
+        LOGGER.info("Timezone comparison return difference: {}", diff);
         return (Math.abs(diff) <= 1);
 
     }
 
     private static TimeZone getTimezoneFromOffset(String tz) {
         tz = tz.replace("GMT", "");
-        String tz_p1 = tz.split(":")[0];
-        String tz_p2 = tz.split(":")[1];
-        if (tz_p1.startsWith("-0")) {
-            tz_p1 = tz_p1.replace("-0", "-");
+        String tzP1 = tz.split(":")[0];
+        String tzP2 = tz.split(":")[1];
+        if (tzP1.startsWith("-0")) {
+            tzP1 = tzP1.replace("-0", "-");
         }
-        if (tz_p1.startsWith("+0")) {
-            tz_p1 = tz_p1.replace("+0", "");
+        if (tzP1.startsWith("+0")) {
+            tzP1 = tzP1.replace("+0", "");
         }
-        if (tz_p1.startsWith("+")) {
-            tz_p1 = tz_p1.replace("+", "");
+        if (tzP1.startsWith("+")) {
+            tzP1 = tzP1.replace("+", "");
         }
-        int tz_hour = Integer.parseInt(tz_p1);
-        int tz_min = Integer.parseInt(tz_p2);
-        return DateTimeZone.forOffsetHoursMinutes(tz_hour, tz_min).toTimeZone();
+        int tzHour = Integer.parseInt(tzP1);
+        int tzMin = Integer.parseInt(tzP2);
+        return DateTimeZone.forOffsetHoursMinutes(tzHour, tzMin).toTimeZone();
     }
 
     public static int compare(TimeZone tz1, TimeZone tz2) {
-        Calendar cal = GregorianCalendar.getInstance(tz1);
+        Calendar cal = Calendar.getInstance(tz1);
         long date = cal.getTimeInMillis();
         return (tz2.getOffset(date) - tz1.getOffset(date)) / 3600000;
     }
@@ -344,9 +345,9 @@ public class DeviceTimeZone {
     @Override
     public String toString() {
         return "DeviceTimeZone{" +
-                "auto_time=" + auto_time +
-                ", auto_timezone=" + auto_timezone +
-                ", time_format=" + time_format +
+                "auto_time=" + autoTime +
+                ", auto_timezone=" + autoTimezone +
+                ", time_format=" + timeFormat +
                 ", timezone='" + timezone + '\'' +
                 ", gmt='" + gmt + '\'' +
                 ", setDeviceDateTime='" + setDeviceDateTime + '\'' +

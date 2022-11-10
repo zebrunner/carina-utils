@@ -15,6 +15,8 @@
  *******************************************************************************/
 package com.zebrunner.carina.utils;
 
+import com.zebrunner.carina.utils.exception.MissingParameterException;
+
 /**
  * DefaultEnvArgsResolver
  * 
@@ -27,7 +29,7 @@ public class DefaultEnvArgResolver implements IEnvArgResolver {
     @Override
     public String get(String env, String key) {
         if (Configuration.isNull(Configuration.Parameter.ENV)) {
-            throw new RuntimeException("Configuration parameter 'env' should be set!");
+            throw new MissingParameterException("Configuration parameter 'env' should be set!");
         }
         return R.CONFIG.get(Configuration.get(Configuration.Parameter.ENV) + "." + key);
     }

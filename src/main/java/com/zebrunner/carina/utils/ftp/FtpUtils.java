@@ -29,13 +29,13 @@ import org.apache.commons.net.ftp.FTPReply;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class FtpUtils {
+public final class FtpUtils {
     private static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 	private static final int DEFAULT_PORT = 21;
-	
-	//TODO: https://github.com/zebrunner/carina/issues/954
-	// migrate FtpUtils methods to use com.qaprosoft.carina.core.foundation.utils.async.AsyncOperation
 	private static int uploading = 0;
+
+    private FtpUtils() {
+    }
 
 	public static void uploadFile(String ftpHost, String user, String password, String filePassToUpload,
 			String fileName) {
@@ -61,8 +61,8 @@ public class FtpUtils {
 	public static void uploadData(String ftpHost, int port, String user, String password, String data,
 			String destinationFileName) {
 		byte[] decode = Base64.getDecoder().decode(data);
-		LOGGER.debug("Data size to upload: " + data.length());
-		LOGGER.debug("Encoded data size to upload: " + decode.length);
+        LOGGER.debug("Data size to upload: {}", data.length());
+        LOGGER.debug("Encoded data size to upload: {}", decode.length);
 		try (InputStream is = new ByteArrayInputStream(decode)) {
 			upload(ftpHost, port, user, password, is, destinationFileName);
 		} catch (IOException e) {
@@ -72,40 +72,40 @@ public class FtpUtils {
 
 	private static void upload(String ftpHost, int port, String user, String password, InputStream is,
 			String fileName) {
-	    LOGGER.debug("FTP host to upload data : " + ftpHost);
-	    LOGGER.debug("FTP port to upload data : " + port);
-        LOGGER.debug("Destination file name : " + fileName);
+        LOGGER.debug("FTP host to upload data : {}", ftpHost);
+        LOGGER.debug("FTP port to upload data : {}", port);
+        LOGGER.debug("Destination file name : {}", fileName);
         long start = System.currentTimeMillis();
 		FTPClient ftp = new FTPClient();
 		try {
 			int reply;
 			ftp.connect(ftpHost, port);
-			LOGGER.debug("Connected to server : " + ftpHost);
+            LOGGER.debug("Connected to server : {}", ftpHost);
 			reply = ftp.getReplyCode();
-			LOGGER.debug("Reply code is : " + reply);
+            LOGGER.debug("Reply code is : {}", reply);
 			if (!FTPReply.isPositiveCompletion(reply)) {
 				ftp.disconnect();
-				LOGGER.error("FTP server refused connection. Reply code is : " + reply);
+                LOGGER.error("FTP server refused connection. Reply code is : {}", reply);
 				throw new Exception("FTP server refused connection.");
 			}
 			if (!ftp.login(user, password)) {
 			    throw new Exception("Login to ftp failed. Check user credentials.");
-			};
+			}
 			LOGGER.debug("User has been successfully logged in.");
 			ftp.setFileType(FTP.BINARY_FILE_TYPE);
 			try {
 			    ftp.enterLocalPassiveMode();
-			    LOGGER.debug("Passive host : " + ftp.getPassiveHost() + " Passive port : " + ftp.getPassivePort());
-			    LOGGER.debug("Default port : " + ftp.getDefaultPort());
-			    LOGGER.debug("Local port : " + ftp.getLocalPort());
-			    LOGGER.debug("Remote port : " + ftp.getRemotePort());
+                LOGGER.debug("Passive host : {} Passive port : {}", ftp.getPassiveHost(), ftp.getPassivePort());
+			    LOGGER.debug("Default port : {}", ftp.getDefaultPort());
+			    LOGGER.debug("Local port : {}", ftp.getLocalPort());
+			    LOGGER.debug("Remote port : {}", ftp.getRemotePort());
 			    
 			    uploading++;
-			    LOGGER.info("Uploading video: " + fileName);
+			    LOGGER.info("Uploading video: {}", fileName);
 				if (ftp.storeFile(fileName, is)) {
-                    LOGGER.info("Uploaded video in " + (System.currentTimeMillis() - start) + " msecs for: " + fileName);
+                    LOGGER.info("Uploaded video in {} msecs for: {}",  System.currentTimeMillis() - start, fileName);
 				} else {
-				    LOGGER.error("Failed to upload video in " + (System.currentTimeMillis() - start) + " msecs for: " + fileName);			    
+				    LOGGER.error("Failed to upload video in {} msecs for: {}",System.currentTimeMillis() - start, fileName);
 				}
 			} catch (IOException e) {
 				LOGGER.error("Exception while storing file to FTP", e);
@@ -122,19 +122,15 @@ public class FtpUtils {
     public static void ftpDisconnect(FTPClient ftp) {
         try {
             if (ftp.isConnected()) {
-                try {
-                    ftp.logout();
-                    ftp.disconnect();
-                } catch (Exception ioe) {
-                    LOGGER.error("Exception while disconnecting ftp", ioe);
-                }
+                ftp.logout();
+                ftp.disconnect();
+                LOGGER.debug("FTP has been successfully disconnected.");
             }
-        } catch (Throwable thr) {
-            LOGGER.error("Throwable while disconnecting ftp", thr);
+        } catch (Exception ioe) {
+            LOGGER.error("Exception while disconnecting ftp", ioe);
         }
-        LOGGER.debug("FTP has been successfully disconnected.");
     }
-    
+
     public static boolean isUploading() {
         return uploading > 0;
     }

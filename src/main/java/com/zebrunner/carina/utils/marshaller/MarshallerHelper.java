@@ -24,11 +24,14 @@ import javax.xml.transform.Result;
 import javax.xml.transform.Source;
 import javax.xml.transform.stream.StreamResult;
 
-public class MarshallerHelper {
+public final class MarshallerHelper {
     /**
      * Marshaller/Unmarshaller implementation
      */
     private static final Marshaller marshaller = Marshaller.getInstance();
+
+    private MarshallerHelper() {
+    }
 
     public static void marshall(Object jaxbElement, Result paramResult) {
         marshaller.marshall(jaxbElement, paramResult);

@@ -18,18 +18,24 @@ package com.zebrunner.carina.utils.mobile.notifications;
 import java.lang.invoke.MethodHandles;
 import java.util.Map;
 
-import com.zebrunner.carina.utils.rest.RestUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.zebrunner.carina.utils.rest.RestUtil;
 
 import io.restassured.response.Response;
 
-public class NotificationUtils {
+public final class NotificationUtils {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+    private static final String PASSED_MESSAGE = "Call passed with status code '{}'. ";
+    private static final String FAILED_MESSAGE = "Call failed with status code '{}'. ";
+    private static final String REQUEST_URL_MESSAGE = "Request url: {}";
+
+    private NotificationUtils() {
+    }
 
     /**
      * call Push Service
@@ -54,23 +60,14 @@ public class NotificationUtils {
      */
     public static JsonObject callPushService(String contentType, Map<String, ?> parameters, String url, boolean responseLog) {
         try {
-
-            LOGGER.info("Request url: " + url);
-
-            Response response = RestUtil.sendHttpPost(contentType, parameters, url.toString(), responseLog);
+            LOGGER.info(REQUEST_URL_MESSAGE, url);
+            Response response = RestUtil.sendHttpPost(contentType, parameters, url, responseLog);
 
             if (response.getStatusCode() == 200) {
-                LOGGER.debug("Call passed with status code '"
-                        + response.getStatusCode()
-                        + "'. ");
-
-                JsonParser parser = new JsonParser();
-
-                return parser.parse(response.asString()).getAsJsonObject();
+                LOGGER.debug(PASSED_MESSAGE, response.getStatusCode());
+                return JsonParser.parseString(response.asString()).getAsJsonObject();
             } else {
-                LOGGER.error("Call failed with status code '"
-                        + response.getStatusCode()
-                        + "'. ");
+                LOGGER.error(FAILED_MESSAGE, response.getStatusCode());
             }
 
         } catch (Exception e) {
@@ -102,21 +99,14 @@ public class NotificationUtils {
     public static JsonObject getPushServiceResponse(String contentType, String request, String url, boolean responseLog) {
         try {
 
-            LOGGER.info("Request url: " + url);
+            LOGGER.info(REQUEST_URL_MESSAGE, url);
             Response response = RestUtil.sendHttpPost(contentType, request, url.toString(), responseLog);
 
             if (response.getStatusCode() == 200) {
-                LOGGER.debug("Call passed with status code '"
-                        + response.getStatusCode()
-                        + "'. ");
-
-                JsonParser parser = new JsonParser();
-
-                return parser.parse(response.asString()).getAsJsonObject();
+                LOGGER.debug(PASSED_MESSAGE, response.getStatusCode());
+                return JsonParser.parseString(response.asString()).getAsJsonObject();
             } else {
-                LOGGER.error("Call failed with status code '"
-                        + response.getStatusCode()
-                        + "'. ");
+                LOGGER.error(FAILED_MESSAGE, response.getStatusCode());
             }
 
         } catch (Exception e) {
@@ -146,21 +136,14 @@ public class NotificationUtils {
     public static JsonObject getGetServiceResponse(String contentType, String url, boolean responseLog) {
         try {
 
-            LOGGER.info("Request url: " + url);
-            Response response = RestUtil.sendHttpGet(contentType, url.toString(), responseLog);
+            LOGGER.info(REQUEST_URL_MESSAGE, url);
+            Response response = RestUtil.sendHttpGet(contentType, url, responseLog);
 
             if (response.getStatusCode() == 200) {
-                LOGGER.debug("Call passed with status code '"
-                        + response.getStatusCode()
-                        + "'. ");
-
-                JsonParser parser = new JsonParser();
-
-                return parser.parse(response.asString()).getAsJsonObject();
+                LOGGER.debug(PASSED_MESSAGE, response.getStatusCode());
+                return JsonParser.parseString(response.asString()).getAsJsonObject();
             } else {
-                LOGGER.error("Call failed with status code '"
-                        + response.getStatusCode()
-                        + "'. ");
+                LOGGER.error(FAILED_MESSAGE, response.getStatusCode());
             }
 
         } catch (Exception e) {

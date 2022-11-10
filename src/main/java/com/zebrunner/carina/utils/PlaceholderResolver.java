@@ -32,10 +32,12 @@ import com.zebrunner.carina.utils.exception.PlaceholderResolverException;
  * 
  * @author Alexey Khursevich (hursevich@gmail.com)
  */
-public class PlaceholderResolver {
+public final class PlaceholderResolver {
     private static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
-
     private static final Pattern PATTERN = Pattern.compile(SpecialKeywords.PLACEHOLER);
+
+    private PlaceholderResolver() {
+    }
 
     /**
      * Resolves value by placeholder recursively.
@@ -77,7 +79,7 @@ public class PlaceholderResolver {
             try {
                 resolve(properties, (String) key);
             } catch (StackOverflowError e) {
-                LOGGER.error("Infinit placeholder loop was found for '" + properties.getProperty((String) key) + "'");
+                LOGGER.error("Infinit placeholder loop was found for '{}'", properties.getProperty((String) key));
                 return false;
             } catch (PlaceholderResolverException e) {
                 LOGGER.error(e.getMessage());

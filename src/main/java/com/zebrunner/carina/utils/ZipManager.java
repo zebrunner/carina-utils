@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.invoke.MethodHandles;
+import java.nio.file.Path;
 import java.util.Enumeration;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
@@ -29,25 +30,21 @@ import java.util.zip.ZipFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ZipManager {
+public final class ZipManager {
     private static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
-    
+
+    private ZipManager() {
+    }
 
     @SuppressWarnings("rawtypes")
     public static void unzip(String zip, String extractTo) {
-        Enumeration entries;
-        ZipFile zipFile = null;
-
-        try {
-            zipFile = new ZipFile(zip);
-
-            entries = zipFile.entries();
-
+        try (ZipFile zipFile = new ZipFile(zip)) {
+            Enumeration entries = zipFile.entries();
             while (entries.hasMoreElements()) {
                 ZipEntry entry = (ZipEntry) entries.nextElement();
-
                 if (entry.isDirectory()) {
-                    File folder = new File(extractTo + "/" + entry.getName());
+                    Path path = Path.of(extractTo, entry.getName());
+                    File folder = path.toFile();
                     boolean isCreated = folder.mkdir();
                     if (!isCreated) {
                         throw new RuntimeException("Folder not created: " + folder.getAbsolutePath());
@@ -55,39 +52,18 @@ public class ZipManager {
                     continue;
                 }
 
-                InputStream is = zipFile.getInputStream(entry);
-                try {
-                    FileOutputStream fos = new FileOutputStream(extractTo + "/" + entry.getName());
-                    try {
-                        BufferedOutputStream bos = new BufferedOutputStream(fos);
-                        try {
-                            copyInputStream(is, bos);
-                        } finally {
-							bos.close();
-                        }
-                    } finally {
-						fos.close();
-                    }
-                } finally {
-                    if (is != null) {
-                        is.close();
-                    }
+                try (InputStream is = zipFile.getInputStream(entry);
+                        OutputStream fos = new FileOutputStream(Path.of(extractTo, entry.getName()).toFile());
+                        OutputStream bos = new BufferedOutputStream(fos)) {
+                    copyInputStream(is, bos);
                 }
             }
         } catch (IOException e) {
-            LOGGER.error("Error during unzip!", e);
-        } finally {
-            try {
-                if (zipFile != null) {
-                    zipFile.close();
-                }
-            } catch (IOException e) {
-                LOGGER.error("Error during closing zipFile!", e);
-            }
+            LOGGER.error("IO exception for unzip operation!", e);
         }
     }
 
-    public static final void copyInputStream(InputStream in, OutputStream out) throws IOException {
+    public static void copyInputStream(InputStream in, OutputStream out) throws IOException {
         byte[] buffer = new byte[1024];
         int len;
 

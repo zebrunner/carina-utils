@@ -21,7 +21,11 @@ package com.zebrunner.carina.utils.commons;
  * @author: Aliakse_Khursevich (hursevich@gmail.com)
  * 
  */
-public class HTML {
+public final class HTML {
+
+    private HTML() {
+    }
+
     public static final String ID = "id";
 
     public static final String HREF = "href";

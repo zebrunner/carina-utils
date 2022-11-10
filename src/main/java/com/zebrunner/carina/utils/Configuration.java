@@ -16,7 +16,6 @@
 package com.zebrunner.carina.utils;
 
 import java.lang.invoke.MethodHandles;
-import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -24,9 +23,11 @@ import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.reflect.MethodUtils;
 import org.openqa.selenium.MutableCapabilities;
+import org.openqa.selenium.remote.CapabilityType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.zebrunner.carina.utils.exception.MissingParameterException;
 import com.zebrunner.carina.utils.commons.SpecialKeywords;
 
 /**
@@ -263,6 +264,7 @@ public class Configuration {
     }
 
     public static String asString() {
+        String lineFormat = "%s=%s%n";
         StringBuilder asString = new StringBuilder();
         asString.append("\n============= Test configuration =============\n");
         for (Parameter param : Parameter.values()) {
@@ -272,12 +274,12 @@ public class Configuration {
                 continue;
             }
             if (!Parameter.CRYPTO_KEY_VALUE.equals(param) && !Configuration.get(param).isEmpty() && R.CONFIG.isOverwritten(param.getKey())) {
-                asString.append(String.format("%s=%s%n", param.getKey(), Configuration.get(param)));
+                asString.append(String.format(lineFormat, param.getKey(), Configuration.get(param)));
             }
         }
 
         // write into the log extra information about selenium_url together with capabilities
-        asString.append(String.format("%s=%s%n", "selenium_url", getSeleniumUrl()));
+        asString.append(String.format(lineFormat, "selenium_url", getSeleniumUrl()));
         asString.append("\n------------- Driver capabilities -----------\n");
         // read all properties from config.properties and use "capabilities.*"
         final String prefix = SpecialKeywords.CAPABILITIES + ".";
@@ -285,7 +287,7 @@ public class Configuration {
         Map<String, String> capabilitiesMap = new HashMap(R.CONFIG.getProperties());
         for (Map.Entry<String, String> entry : capabilitiesMap.entrySet()) {
             if (entry.getKey().toLowerCase().startsWith(prefix)) {
-                asString.append(String.format("%s=%s%n", entry.getKey(), R.CONFIG.get(entry.getKey())));
+                asString.append(String.format(lineFormat, entry.getKey(), R.CONFIG.get(entry.getKey())));
             }
         }
 
@@ -296,7 +298,7 @@ public class Configuration {
     public static void validateConfiguration() {
         for (Parameter param : Parameter.values()) {
             if (StringUtils.isEmpty(Configuration.get(param)) || SpecialKeywords.MUST_OVERRIDE.equals(Configuration.get(param))) {
-                throw new RuntimeException("Configuration failure: parameter '" + param.getKey() + "' not specified!");
+                throw new MissingParameterException("Configuration failure: parameter '" + param.getKey() + "' not specified!");
             }
         }
     }
@@ -332,46 +334,58 @@ public class Configuration {
     }
 
     /**
-     * Get platform name from configuration properties.
-     * @return String platform name
+     * Get platform name from configuration properties
+     * 
+     * @return platform name, see {@link org.openqa.selenium.Platform}<br>
+     *         {@code *} - any platform
      */
     public static String getPlatform() {
-        return getPlatform(new MutableCapabilities());
+        // warning: do not read "os" or "platformName" from driver capabilities as SauceLabs return LINUX instead of ANDROID
+        String platform = "*"; // any platform by default
+
+        LOGGER.debug("platform1: {}", platform);
+        // redefine platform if os caps is available
+        if (!R.CONFIG.get(SpecialKeywords.BROWSERSTACK_PLATFORM_NAME).isEmpty()) {
+            platform = R.CONFIG.get(SpecialKeywords.BROWSERSTACK_PLATFORM_NAME);
+            LOGGER.debug("platform2: {}", platform);
+        }
+
+        // redefine platform if platformName caps is available
+        if (!R.CONFIG.get(SpecialKeywords.PLATFORM_NAME).isEmpty()) {
+            platform = R.CONFIG.get(SpecialKeywords.PLATFORM_NAME);
+            LOGGER.debug("platform3: {}", platform);
+        }
+        return platform;
     }
 
     /**
      * Get platform name from configuration properties or MutableCapabilities.
      * 
+     * @deprecated this method does not get platform from caps, only from configuration properties
+     *             Use {@link #getPlatform()} instead, it will give the same result
+     *             If you want to get platform from capabilities only, use {@link MutableCapabilities#getPlatformName()}
      * @param caps MutableCapabilities
      * @return String platform name
      */
+    @Deprecated(forRemoval = true, since = "8.0.2")
     public static String getPlatform(MutableCapabilities caps) {
         // any platform by default
         String platform = "*";
-        
-        LOGGER.debug("platform1: " + platform);
+
+        LOGGER.debug("platform1: {}", platform);
         // redefine platform if os caps is available
         if (!R.CONFIG.get(SpecialKeywords.BROWSERSTACK_PLATFORM_NAME).isEmpty()) {
             platform = R.CONFIG.get(SpecialKeywords.BROWSERSTACK_PLATFORM_NAME);
         }
-        LOGGER.debug("platform2: " + platform);
+        LOGGER.debug("platform2: {}", platform);
 
         // redefine platform if platformName caps is available
         if (!R.CONFIG.get(SpecialKeywords.PLATFORM_NAME).isEmpty()) {
             platform = R.CONFIG.get(SpecialKeywords.PLATFORM_NAME);
         }
-        LOGGER.debug("platform3: " + platform);
+        LOGGER.debug("platform3: {}", platform);
+        LOGGER.debug("platform4: {}", platform);
 
-        // do not read "os" or "platformName" from caps as Saucelabs return LINUX instead of ANDROID
-//        if (caps != null && caps.getCapability("os") != null) {
-//            platform = caps.getCapability("os").toString();
-//        }   
-        
-//        if (caps != null && caps.getCapability("platformName") != null) {
-//            platform = caps.getCapability("platformName").toString();
-//        }
-        LOGGER.debug("platform4: " + platform);
-        
         return platform;
     }
     
@@ -417,21 +431,21 @@ public class Configuration {
             browser = Configuration.get(Parameter.BROWSER);
         }
 
+        String configBrowserName = getCapability(CapabilityType.BROWSER_NAME);
         // redefine browser if capabilities.browserName is available
-        if (!R.CONFIG.get("capabilities.browserName").isEmpty() && !"null".equalsIgnoreCase(R.CONFIG.get("capabilities.browserName"))) {
-            browser = R.CONFIG.get("capabilities.browserName");
+        if (!configBrowserName.isEmpty() && !"null".equalsIgnoreCase(configBrowserName)) {
+            browser = configBrowserName;
         }
         return browser;
     }
-    
-    public static String getBrowserVersion() {
-        String browserVersion = "";
 
+    public static String getBrowserVersion() {
+        String browserVersion = StringUtils.EMPTY;
+        String configBrowserVersion = getCapability(CapabilityType.BROWSER_VERSION);
         // redefine browserVersion if capabilities.browserVersion is available
-        if (!R.CONFIG.get("capabilities.browserVersion").isEmpty()  && !"null".equalsIgnoreCase(R.CONFIG.get("capabilities.browserVersion"))) {
-            browserVersion = R.CONFIG.get("capabilities.browserVersion");
+        if (!configBrowserVersion.isEmpty() && !"null".equalsIgnoreCase(configBrowserVersion)) {
+            browserVersion = configBrowserVersion;
         }
-        
         return browserVersion;
     }
 
@@ -462,8 +476,6 @@ public class Configuration {
         if (SpecialKeywords.MAC.equalsIgnoreCase(platform)) {
             return SpecialKeywords.MAC;
         }
-
-        // todo this method should not returns default values as desktop
         return SpecialKeywords.DESKTOP;
     }
 
@@ -475,8 +487,8 @@ public class Configuration {
 
         String platform = StringUtils.EMPTY;
         String browserName = getBrowser();
-        if (capabilities.getCapability("platformName") != null) {
-            platform = capabilities.getCapability("platformName").toString();
+        if (capabilities.getCapability(CapabilityType.PLATFORM_NAME) != null) {
+            platform = capabilities.getCapability(CapabilityType.PLATFORM_NAME).toString();
         }
 
         if (SpecialKeywords.ANDROID.equalsIgnoreCase(platform) ||
@@ -502,8 +514,6 @@ public class Configuration {
             LOGGER.debug("Detected MOBILE driver_type by uuid inside capabilities");
             return SpecialKeywords.MOBILE;
         }
-
-        // todo this method should not returns default values as desktop
         return SpecialKeywords.DESKTOP;
     }
 
@@ -519,10 +529,10 @@ public class Configuration {
 
     public static void setMobileApp(String mobileApp) {
         R.CONFIG.put(SpecialKeywords.CAPABILITIES + ".app", mobileApp);
-        LOGGER.info("Updated mobile app: " + mobileApp);
+        LOGGER.info("Updated mobile app: {}", mobileApp);
     }
 
-    public static Object getCapability(String name) {
+    public static String getCapability(String name) {
         return R.CONFIG.get("capabilities." + name);
     }
     

@@ -17,6 +17,7 @@ package com.zebrunner.carina.utils;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UncheckedIOException;
 
 import org.apache.pdfbox.cos.COSDocument;
 import org.apache.pdfbox.io.RandomAccessBufferedFileInputStream;
@@ -31,7 +32,11 @@ import org.apache.pdfbox.text.PDFTextStripper;
  *         <a href="mailto:szagriychuk@gmail.com">Sergey Zagriychuk</a>
  *
  */
-public class PDFUtil {
+public final class PDFUtil {
+
+    private PDFUtil() {
+    }
+
     /**
      * Reads PDF content in specified page range.
      * 
@@ -41,43 +46,27 @@ public class PDFUtil {
      * @return PDF content
      */
     public static String readTxtFromPDF(InputStream inputStream, int startPage, int endPage) {
-        PDFTextStripper pdfStripper = null;
-        PDDocument pdDoc = null;
-        COSDocument cosDoc = null;
-        RandomAccessBufferedFileInputStream randomAccessBufferedFileInputStream = null;
         if (inputStream == null) {
-            throw new RuntimeException("Input stream not opened");
+            throw new IllegalArgumentException("inputStream argument cannot be null");
         }
-        try {
-        	randomAccessBufferedFileInputStream = new RandomAccessBufferedFileInputStream(inputStream);
+        PDFTextStripper pdfStripper = null;
+        try (inputStream;
+                RandomAccessBufferedFileInputStream randomAccessBufferedFileInputStream = new RandomAccessBufferedFileInputStream(inputStream)) {
             PDFParser parser = new PDFParser(randomAccessBufferedFileInputStream);
             parser.parse();
-            cosDoc = parser.getDocument();
-            pdfStripper = new PDFTextStripper();
-            pdDoc = new PDDocument(cosDoc);
-            pdfStripper.setSortByPosition(true);
-            pdfStripper.setStartPage(startPage);
-            pdfStripper.setEndPage(endPage);
-            return pdfStripper.getText(pdDoc);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        } finally {
-            try {
-                if (cosDoc != null) {
-                    cosDoc.close();
-                }
-                if (pdDoc != null) {
-                    pdDoc.close();
-                }
-                if (inputStream != null) {
-                    inputStream.close();
-                }
-                if (randomAccessBufferedFileInputStream != null) {
-                	randomAccessBufferedFileInputStream.close();
-                }
+            try (
+                    COSDocument cosDoc = parser.getDocument();
+                    PDDocument pdDoc = new PDDocument(cosDoc)) {
+                pdfStripper = new PDFTextStripper();
+                pdfStripper.setSortByPosition(true);
+                pdfStripper.setStartPage(startPage);
+                pdfStripper.setEndPage(endPage);
+                return pdfStripper.getText(pdDoc);
             } catch (IOException e) {
-                throw new RuntimeException(e);
+                throw new UncheckedIOException(e);
             }
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
         }
     }
 }

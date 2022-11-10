@@ -13,24 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *******************************************************************************/
-package com.zebrunner.carina.utils.android.recorder.exception;
+package com.zebrunner.carina.utils.exception;
 
 /**
- *
+ * An exception occurred when a value for the required parameter is missing in the config file
  */
-public class UnsupportedPlatformException extends RuntimeException {
+public class MissingParameterException extends RuntimeException {
 
-    private static final long serialVersionUID = 7271195042561257354L;
-
-    public UnsupportedPlatformException() {
-        super();
-    }
-
-    public UnsupportedPlatformException(String message) {
+    public MissingParameterException(String message) {
         super(message);
-    }
-
-    public UnsupportedPlatformException(String message, Throwable cause) {
-        super(message, cause);
     }
 }

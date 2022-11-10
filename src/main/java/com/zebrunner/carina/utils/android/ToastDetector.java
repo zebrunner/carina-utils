@@ -74,7 +74,7 @@ public class ToastDetector implements Runnable {
         fluentWait.withTimeout(Duration.ofSeconds(waitTimeout)).pollingEvery(Duration.ofMillis(300)).until(input -> {
             List<?> webElemenList = webDriver.findElements(By.xpath(String.format(TOAST_PATTERN, toastToWait)));
             if (webElemenList.size() == 1) {
-                LOGGER.info("Toast with text present: " + toastToWait);
+                LOGGER.info("Toast with text present: {}", toastToWait);
                 isPresent = true;
                 return true;
             } else {
@@ -87,8 +87,8 @@ public class ToastDetector implements Runnable {
         Thread thread = new Thread(this);
         try {
             thread.start();
-        } catch (Exception ignored) {
-
+        } catch (Exception e) {
+            // do nothing
         }
     }
 }

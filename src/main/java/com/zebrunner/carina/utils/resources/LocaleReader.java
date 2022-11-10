@@ -19,16 +19,20 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-public class LocaleReader {
+public final class LocaleReader {
+
+    private LocaleReader() {
+    }
 
     public static List<Locale> init(String locale) {
 
-        List<Locale> locales = new ArrayList<Locale>();
+        List<Locale> locales = new ArrayList<>();
         String[] strLocales = locale.split(",");
 
-        for (int i = 0; i < strLocales.length; i++) {
-            String[] localeSetttings = strLocales[i].trim().split("_");
-            String lang, country = "";
+        for (String strLocale : strLocales) {
+            String[] localeSetttings = strLocale.trim().split("_");
+            String lang = "";
+            String country = "";
             lang = localeSetttings[0];
             if (localeSetttings.length > 1) {
                 country = localeSetttings[1];

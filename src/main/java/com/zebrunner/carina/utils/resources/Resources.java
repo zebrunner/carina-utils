@@ -29,13 +29,15 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class Resources {
-
+public final class Resources {
     private static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+
+    private Resources() {
+    }
 
     private static void collectURL(ResourceURLFilter f, Set<URL> s, URL u) {
         if (f == null || f.accept(u)) {
-            LOGGER.debug("adding resource url by filter: " + u);
+            LOGGER.debug("adding resource url by filter: {}", u);
             s.add(u);
         }
     }

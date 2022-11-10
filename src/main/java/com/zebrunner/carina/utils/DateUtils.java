@@ -19,9 +19,12 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
-public class DateUtils {
+public final class DateUtils {
     private static final String DATE_FORMAT = R.CONFIG.get("date_format");
     private static final String TIME_FORMAT = R.CONFIG.get("time_format");
+
+    private DateUtils() {
+    }
 
     public static String now() {
         Calendar cal = Calendar.getInstance();
