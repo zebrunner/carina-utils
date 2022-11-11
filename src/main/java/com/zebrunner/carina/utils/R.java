@@ -31,11 +31,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.SkipException;
 
-import com.zebrunner.carina.utils.commons.SpecialKeywords;
-import com.zebrunner.carina.utils.exception.InvalidConfigurationException;
 import com.zebrunner.carina.crypto.Algorithm;
 import com.zebrunner.carina.crypto.CryptoTool;
 import com.zebrunner.carina.crypto.CryptoToolBuilder;
+import com.zebrunner.carina.utils.commons.SpecialKeywords;
+import com.zebrunner.carina.utils.exception.InvalidConfigurationException;
 
 /**
  * R - loads properties from resource files.
@@ -65,7 +65,7 @@ public enum R {
 
     private static final String OVERRIDE_SIGN = "_";
 
-    private String resourceFile;
+    private final String resourceFile;
 
     // temporary thread/test properties which is cleaned on afterTest phase for current thread. It can override any value from below R enum maps
     private static ThreadLocal<Properties> testProperties = new ThreadLocal<>();
@@ -92,10 +92,12 @@ public enum R {
                 }
 
                 URL overrideResource;
-                String resourceName = OVERRIDE_SIGN + resource.resourceFile;
-                while ((overrideResource = ClassLoader.getSystemResource(resourceName)) != null) {
-                    properties.load(overrideResource.openStream());
-                    resourceName = OVERRIDE_SIGN + resourceName;
+                StringBuilder resourceNameBuilder = new StringBuilder(OVERRIDE_SIGN  + resource.resourceFile);
+                while ((overrideResource = ClassLoader.getSystemResource(resourceNameBuilder.toString())) != null) {
+                    try (InputStream resourceStream = overrideResource.openStream()) {
+                        properties.load(resourceStream);
+                        resourceNameBuilder.insert(0, OVERRIDE_SIGN);
+                    }
                 }
 
                 // Overrides properties by env variables
@@ -115,7 +117,7 @@ public enum R {
                 }
 
                 // init R.CONFIG with default values for required fields
-                if (resource.resourceFile.equals("config.properties")) {
+                if (resource.resourceFile.equals(CONFIG.resourceFile)) {
                     if (!CONFIG.isInit(Configuration.Parameter.PROJECT_REPORT_DIRECTORY,properties)) {
                         properties.put(Configuration.Parameter.PROJECT_REPORT_DIRECTORY.getKey(), "./reports");
                     }
@@ -124,7 +126,7 @@ public enum R {
                     }
                 }
 
-                if (resource.resourceFile.contains("config.properties")) {
+                if (resource.resourceFile.contains(CONFIG.resourceFile)) {
                     // no need to read env variables using System.getenv()
                     final String prefix = SpecialKeywords.CAPABILITIES + ".";
                     
@@ -144,10 +146,10 @@ public enum R {
                     for (Map.Entry<Object, Object> entry : properties.entrySet()) {
                         String key = (String) entry.getKey();
                         String value = (String) entry.getValue();
-                        if (key.toLowerCase().startsWith(prefix)) {
-                            if (StringUtils.isBlank(value) || value.equalsIgnoreCase(SpecialKeywords.NULL)) {
-                                properties.remove(key, value);
-                            }
+                        if (key.toLowerCase().startsWith(prefix) &&
+                                (StringUtils.isBlank(value) || value.equalsIgnoreCase(SpecialKeywords.NULL))) {
+                            properties.remove(key, value);
+
                         }
                     }
                 }
@@ -236,7 +238,7 @@ public enum R {
         if (currentTestOnly) {
             // do not warn user about this system property update
             if (!Configuration.Parameter.ERROR_SCREENSHOT.getKey().equals(key)) {
-                LOGGER.warn("Override property for current test '" + key + "=" + value + "'!");
+                LOGGER.warn("Override property for current test '{}={}'!", key, value);
             }
             //declare temporary property key
             getTestProperties().put(key, value);
@@ -353,8 +355,8 @@ public enum R {
 		// Glodal properties will be updated with test specific properties
 		if (!getTestProperties().isEmpty()) {
 			Properties testProp = testProperties.get();
-			LOGGER.debug(String.format("CurrentTestOnly properties has [%s] entries.", testProp.size()));
-			LOGGER.debug(testProp.toString());
+			LOGGER.debug("CurrentTestOnly properties has [{}] entries.", testProp.size());
+			LOGGER.debug("{}", testProp);
 			@SuppressWarnings({ "unchecked", "rawtypes" })
 			Map<String, String> testCapabilitiesMap = new HashMap(testProp);
 			testCapabilitiesMap.keySet().stream().forEach(i -> {

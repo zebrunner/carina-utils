@@ -24,9 +24,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.zebrunner.carina.utils.android.recorder.exception.ExecutorException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.zebrunner.carina.utils.android.recorder.exception.ExecutorException;
 
 /**
  * Created by YP.
@@ -37,7 +38,7 @@ public class ProcessBuilderExecutor {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-    private static final Map<Integer, Process> runPIDs = new HashMap<Integer, Process>();
+    private static final Map<Integer, Process> runPIDs = new HashMap<>();
 
     private Process process;
 
@@ -80,10 +81,9 @@ public class ProcessBuilderExecutor {
         if (alreadyPerformed) {
             throw new ExecutorException("Multiple execution attempt.");
         }
-        ProcessBuilder pb = getProcessBuilder();
-        LOGGER.debug("trying to execute:  " + pb.command());
+        LOGGER.debug("trying to execute:  {}", getProcessBuilder().command());
         try {
-            process = pb.start();
+            process = getProcessBuilder().start();
 
             pid = Platform.getPID(process);
             addToGlobalGC(process, pid);
@@ -92,7 +92,7 @@ public class ProcessBuilderExecutor {
             throw new ExecutorException(e.getMessage(), e);
         } finally {
             alreadyPerformed = true;
-            LOGGER.debug("Process started. PID = " + pid);
+            LOGGER.debug("Process started. PID = {}", pid);
         }
     }
 
@@ -102,7 +102,6 @@ public class ProcessBuilderExecutor {
 
     @Override
     protected void finalize() throws Throwable {
-        // LOGGER.debug("finalize");
         try {
             gc();
         } finally {
@@ -153,7 +152,7 @@ public class ProcessBuilderExecutor {
         synchronized (ProcessBuilderExecutor.class) {
 
             Collection<Process> processes = runPIDs.values();
-            LOGGER.debug("perform process cleaning ... (" + processes.size() + " processes need to destroy)");
+            LOGGER.debug("perform process cleaning ... ({} processes need to destroy)", processes.size());
             for (Process p : processes) {
                 destroyProcess(p);
             }

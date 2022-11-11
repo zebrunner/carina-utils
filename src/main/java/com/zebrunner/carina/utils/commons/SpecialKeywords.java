@@ -21,6 +21,10 @@ package com.zebrunner.carina.utils.commons;
  * @author Alex Khursevich
  */
 public class SpecialKeywords {
+
+    private SpecialKeywords() {
+    }
+
     public static final String IGNORE = "$ignore";
     public static final String GENERATE = "\\{generate:\\d*\\}";
     public static final String GENERATE_UUID = "\\{generate_uuid\\}";
@@ -33,8 +37,14 @@ public class SpecialKeywords {
     public static final String L10N_PATTERN = String.format("\\{(%s:.[^\\'\\\"]*)}", L10N);
 
     public static final String EXCEL = "\\{excel:.*\\}";
+    /**
+     * @deprecated use {@link com.zebrunner.carina.utils.Configuration.Parameter#CRYPTO_PATTERN} to get pattern from config file
+     */
     @Deprecated(forRemoval = true, since = "8.0.1")
     public static final String CRYPT = "\\{crypt:[^\\{\\}]*\\}";
+    /**
+     * @deprecated unused
+     */
     @Deprecated(forRemoval = true, since = "8.0.1")
     public static final String CRYPT_WRAPPER = "{crypt:%s}";
     public static final String PLACEHOLER = "\\$\\{[^\\{\\}]*\\}";
@@ -119,19 +129,30 @@ public class SpecialKeywords {
     public static final String TEST_PRIORITY_TAG = "priority";
     public static final String TEST_FEATURE_TAG = "feature";
     
-    public final static String DRIVER_CONNECTION_REFUSED = "Driver connection refused";
-    public final static String DRIVER_CONNECTION_REFUSED2 = "Expected to read a START_MAP but instead have: END. Last 0 characters read";
-    public final static String DRIVER_TARGET_FRAME_DETACHED = "target frame detached";
-    public final static String DRIVER_NO_SUCH_WINDOW = "no such window: window was already closed";
+    public static final String DRIVER_CONNECTION_REFUSED = "Driver connection refused";
+    public static final String DRIVER_CONNECTION_REFUSED2 = "Expected to read a START_MAP but instead have: END. Last 0 characters read";
+    public static final String DRIVER_TARGET_FRAME_DETACHED = "target frame detached";
+    public static final String DRIVER_NO_SUCH_WINDOW = "no such window: window was already closed";
 
-    
     // ------------- CARINA CRYPTO DEFAULT PROPERTIES -----------------
+    /**
+     * @deprecated use {@link com.zebrunner.carina.utils.Configuration.Parameter#CRYPTO_ALGORITHM} to get algorithm from config file
+     */
     @Deprecated(forRemoval = true, since = "8.0.1")
     public static final String CRYPTO_ALGORITHM = "AES/ECB/PKCS5Padding";
+    /**
+     * @deprecated unused
+     */
     @Deprecated(forRemoval = true, since = "8.0.1")
     public static final String CRYPTO_KEY_TYPE = "AES";
+    /**
+     * @deprecated unused
+     */
     @Deprecated(forRemoval = true, since = "8.0.1")
     public static final int CRYPTO_KEY_SIZE = 128;
+    /**
+     * @deprecated use {@link com.zebrunner.carina.utils.Configuration.Parameter#CRYPTO_KEY_VALUE} to get crypto key value
+     */
     @Deprecated(forRemoval = true, since = "8.0.1")
     public static final String CRYPTO_KEY_PATH = "./src/main/resources/crypto.key";
 

@@ -24,14 +24,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.sun.jna.Pointer;
+import com.zebrunner.carina.utils.android.recorder.exception.UnsupportedPlatformException;
 
-/**
- *
- */
-public class Platform {
-
+public final class Platform {
     private static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
-
     public static final String NAME = System.getProperty("os.name").toLowerCase(Locale.US);
     public static final boolean IS_WINDOWS = NAME.startsWith("windows");
     public static final boolean IS_MAC_OS_X = NAME.startsWith("mac os x");
@@ -39,8 +35,9 @@ public class Platform {
 
     private static final String[] WIN_CMD = {};
     private static final String[] MAC_CMD = {};
-    // private static final String[] WIN_CMD = { "cmd", "/c" };
-    // private static final String[] MAC_CMD = { "/bin/bash", "-c" };
+
+    private Platform() {
+    }
 
     public static String[] getCmd() {
         if (Platform.IS_WINDOWS) {
@@ -48,7 +45,7 @@ public class Platform {
         } else if (Platform.IS_MAC_OS_X || Platform.IS_LINUX) {
             return MAC_CMD;
         }
-        throw new RuntimeException("Unsupported platform detected.");
+        throw new UnsupportedPlatformException("Unsupported platform detected.");
     }
 
     public static int getPID(Process process) {
@@ -60,36 +57,34 @@ public class Platform {
         throw new RuntimeException("Can't get PID properly.");
     }
 
-    public static void killProcesses(Collection<Integer> PIDs) {
+    public static void killProcesses(Collection<Integer> pids) {
         if (IS_MAC_OS_X || IS_LINUX) {
-            killUnixProcessesTree(PIDs);
+            killUnixProcessesTree(pids);
         } else if (IS_WINDOWS) {
-            killWindowsProcessesTree(PIDs);
+            killWindowsProcessesTree(pids);
         } else {
-            throw new RuntimeException("Unsupported platform detected.");
+            throw new UnsupportedPlatformException("Unsupported platform detected.");
         }
     }
 
-    private static void killWindowsProcessesTree(Collection<Integer> PIDs) {
+    private static void killWindowsProcessesTree(Collection<Integer> pids) {
         try {
             StringBuilder sb = new StringBuilder("taskkill");
-            for (Integer pid : PIDs) {
-                // sb.append(" /pid ").append(pid).append(" /f /t");
+            for (Integer pid : pids) {
                 sb.append(" /pid ").append(pid);
             }
-            // String cmd = sb.append(" /f /t").toString();
             String cmd = sb.append(" /F /T").toString();
             LOGGER.debug(cmd);
             Runtime.getRuntime().exec(cmd);
         } catch (Exception e) {
-            // ignore
+            // do nothing
         }
     }
 
-    private static void killUnixProcessesTree(Collection<Integer> PIDs) {
+    private static void killUnixProcessesTree(Collection<Integer> pids) {
         try {
             StringBuilder sb = new StringBuilder("kill -9");
-            for (Integer pid : PIDs) {
+            for (Integer pid : pids) {
                 sb.append(" ").append(pid);
             }
             String cmd = sb.toString();
@@ -105,9 +100,9 @@ public class Platform {
             try {
                 Field f = process.getClass().getDeclaredField("pid");
                 f.setAccessible(true);
-                int pid = f.getInt(process);
-                return pid;
+                return f.getInt(process);
             } catch (Exception e) {
+                // do nothing
             }
         }
         return -1;
@@ -127,6 +122,7 @@ public class Platform {
                 pid = kernel.GetProcessId(handle);
                 return pid;
             } catch (Throwable e) {
+                // do nothing
             }
         }
         return -1;

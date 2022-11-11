@@ -24,9 +24,10 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import com.zebrunner.carina.utils.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.zebrunner.carina.utils.Configuration;
 
 /**
  * Created by YP.
@@ -36,9 +37,7 @@ import org.slf4j.LoggerFactory;
 
 public class AdbExecutor {
     private static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
-
-    // private static final String REMOTE_ADB_EXECUTION_CMD = "ssh %s@%s %s";
-    private static String[] cmdInit;
+    private final String[] cmdInit;
 
     public AdbExecutor() {
         cmdInit = "adb".split(" ");
@@ -56,7 +55,7 @@ public class AdbExecutor {
     public List<String> execute(String[] cmd) {
         ProcessBuilderExecutor executor = null;
         BufferedReader in = null;
-        List<String> output = new ArrayList<String>();
+        List<String> output = new ArrayList<>();
 
         try {
             executor = new ProcessBuilderExecutor(cmd);
@@ -88,6 +87,7 @@ public class AdbExecutor {
                 closeable.close();
             }
         } catch (Exception e) {
+            // do nothing
         }
     }
 

@@ -22,9 +22,11 @@ import java.net.UnknownHostException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class NetworkUtil {
-
+public final class NetworkUtil {
     private static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+
+    private NetworkUtil() {
+    }
 
     public static String getIpAddress() {
         String currentIP = "0.0.0.0"; // localhost

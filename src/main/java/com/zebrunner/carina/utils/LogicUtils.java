@@ -23,11 +23,14 @@ import org.openqa.selenium.WebElement;
 
 import com.zebrunner.carina.utils.commons.SpecialKeywords;
 
-public class LogicUtils {
-    private static Random random;
+public final class LogicUtils {
+    private static final Random random;
 
     static {
         random = new Random();
+    }
+
+    private LogicUtils() {
     }
 
     public static boolean isURLEqual(String url1, String url2) {
@@ -37,8 +40,8 @@ public class LogicUtils {
         url1 = StringUtils.removeEnd(url1, "/");
         url2 = StringUtils.removeEnd(url2, "/");
 
-        url1 = url1.contains("?") ? url1.substring(0, url1.indexOf("?")) : url1;
-        url2 = url2.contains("?") ? url2.substring(0, url2.indexOf("?")) : url2;
+        url1 = url1.contains("?") ? url1.substring(0, url1.indexOf('?')) : url1;
+        url2 = url2.contains("?") ? url2.substring(0, url2.indexOf('?')) : url2;
 
         if (url1.contains(SpecialKeywords.IGNORE) || url2.contains(SpecialKeywords.IGNORE)) {
             String[] urlAr1 = url1.split("/");

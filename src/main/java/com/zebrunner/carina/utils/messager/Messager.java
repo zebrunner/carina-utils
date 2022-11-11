@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *******************************************************************************/
-package com.zebrunner.carina.utils;
+package com.zebrunner.carina.utils.messager;
 
 
 import java.lang.invoke.MethodHandles;
@@ -21,16 +21,12 @@ import java.lang.invoke.MethodHandles;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.zebrunner.carina.utils.messager.IMessager;
-
 /**
  * ReportMessage is used for reporting informational and error messages both
  * using logger and testsNG Reporter.
  * 
  * @author akhursevich
  */
-
-// TODO: move to messager package
 public enum Messager implements IMessager {
 	
     TEST_STARTED("TEST [%s] STARTED at [%s]"),

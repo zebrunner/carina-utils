@@ -34,7 +34,7 @@ public class CommonUtils {
      * @param timeout Number
      */
     public static void pause(Number timeout) {
-        LOGGER.debug(String.format("Will wait for %s seconds", timeout));
+        LOGGER.debug("Will wait for {} seconds", timeout);
         try {
             Float timeoutFloat = timeout.floatValue() * 1000;
             long timeoutLong = timeoutFloat.longValue();

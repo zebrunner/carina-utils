@@ -22,29 +22,28 @@ import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.type.TypeFactory;
+import com.zebrunner.carina.utils.exception.JsonParseException;
 
 /**
  * Created by yauhenipatotski on 4/13/16.
  */
 public final class JsonUtils {
 
-    private static ObjectMapper mapper;
-
-    private JsonUtils() {
-
-    }
+    private static final ObjectMapper mapper;
 
     static {
         mapper = new ObjectMapper();
-        // mapper.configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true);
-        // mapper.configure(JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES, true);
+    }
+
+    private JsonUtils() {
+
     }
 
     public static <T> T fromJson(String json, Class<T> classOfT) {
         try {
             return mapper.readValue(json, classOfT);
         } catch (Exception e) {
-            throw new RuntimeException(e.getMessage(), e);
+            throw new JsonParseException(e.getMessage(), e);
         }
     }
 
@@ -52,7 +51,7 @@ public final class JsonUtils {
         try {
             return mapper.writerWithDefaultPrettyPrinter().writeValueAsString(src);
         } catch (Exception e) {
-            throw new RuntimeException(e.getMessage(), e);
+            throw new JsonParseException(e.getMessage(), e);
         }
     }
 
@@ -60,7 +59,7 @@ public final class JsonUtils {
         try {
             return mapper.readValue(file, classOfT);
         } catch (Exception e) {
-            throw new RuntimeException(e.getMessage(), e);
+            throw new JsonParseException(e.getMessage(), e);
         }
     }
 
@@ -70,7 +69,7 @@ public final class JsonUtils {
             JavaType javaType = tf.constructType(type);
             return mapper.readValue(file, javaType);
         } catch (Exception e) {
-            throw new RuntimeException(e.getMessage(), e);
+            throw new JsonParseException(e.getMessage(), e);
         }
     }
 
@@ -80,7 +79,7 @@ public final class JsonUtils {
             JavaType javaType = tf.constructType(type);
             return mapper.readValue(json, javaType);
         } catch (Exception e) {
-            throw new RuntimeException(e.getMessage(), e);
+            throw new JsonParseException(e.getMessage(), e);
         }
     }
 
@@ -88,7 +87,7 @@ public final class JsonUtils {
         try {
             return mapper.readTree(content);
         } catch (Exception e) {
-            throw new RuntimeException(e.getMessage(), e);
+            throw new JsonParseException(e.getMessage(), e);
         }
     }
 
@@ -96,7 +95,7 @@ public final class JsonUtils {
         try {
             return mapper.treeToValue(node, type);
         } catch (Exception e) {
-            throw new RuntimeException(e.getMessage(), e);
+            throw new JsonParseException(e.getMessage(), e);
         }
     }
 }

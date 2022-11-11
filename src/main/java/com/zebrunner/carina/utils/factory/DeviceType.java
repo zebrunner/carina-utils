@@ -38,17 +38,16 @@ public @interface DeviceType {
                 "ios"),
         APPLE_TV("apple_tv", "tvos");
 
-        private String type;
+        private final String deviceType;
+        private final String family;
 
-        private String family;
-
-        Type(String type, String family) {
-            this.type = type;
+        Type(String deviceType, String family) {
+            this.deviceType = deviceType;
             this.family = family;
         }
 
         public String getType() {
-            return type;
+            return deviceType;
         }
 
         public String getFamily() {

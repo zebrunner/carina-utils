@@ -28,20 +28,25 @@ import com.zebrunner.carina.utils.Configuration.Parameter;
 
 public class RetryAnalyzer implements IRetryAnalyzer {
     private static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
-    private static final Integer maxCount = Configuration.getInt(Parameter.RETRY_COUNT);
+    private static final Integer MAX_COUNT = Configuration.getInt(Parameter.RETRY_COUNT);
 
     private Integer runCount = 0;
 
     @Override
     public boolean retry(ITestResult result) {
         runCount++;
-        LOGGER.debug("RetryAnalyzer: " + result.getMethod().getRetryAnalyzer(result) +
-                "method: " + result.getMethod().getConstructorOrMethod().getName() + "; " +
-                "paramIndex: " + ((TestResult) result).getParameterIndex() + "; " +
-                "runCount: " + runCount);
+        LOGGER.debug("RetryAnalyzer: {}; method: {}; " +
+                "paramIndex: {}; runCount: {}",
+                result.getMethod().getRetryAnalyzer(result),
+                result.getMethod().getConstructorOrMethod().getName(),
+                ((TestResult) result).getParameterIndex(),
+                runCount);
 
-        LOGGER.debug("RetryAnalyzer: " + result.getMethod().getRetryAnalyzer(result) + "Method: " + result.getMethod().getMethodName()
-                + "; Incremented retryCount: " + runCount);
-        return runCount <= maxCount;
+        LOGGER.debug(
+                "RetryAnalyzer: {}; Method: {}; Incremented retryCount: {}",
+                result.getMethod().getRetryAnalyzer(result),
+                result.getMethod().getMethodName(),
+                runCount);
+        return runCount <= MAX_COUNT;
     }
 }

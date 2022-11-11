@@ -45,7 +45,7 @@ class Marshaller {
 
     private Marshaller() {
 
-        contextCache = new HashMap<Class<?>, JAXBContext>();
+        contextCache = new HashMap<>();
     }
 
     /**
@@ -92,9 +92,8 @@ class Marshaller {
     private javax.xml.bind.Marshaller getMarshaller(Class<?> clazz) {
         try {
 
-            javax.xml.bind.Marshaller marshaller = getJAXBContext(clazz)
+            return getJAXBContext(clazz)
                     .createMarshaller();
-            return marshaller;
 
         } catch (JAXBException e) {
             LOGGER.error("Error while creating marshaller!", e);
@@ -112,10 +111,8 @@ class Marshaller {
     private javax.xml.bind.Unmarshaller getUnmarshaller(Class<?> clazz) {
         try {
 
-            javax.xml.bind.Unmarshaller unmarshaller = getJAXBContext(clazz)
+            return getJAXBContext(clazz)
                     .createUnmarshaller();
-
-            return unmarshaller;
 
         } catch (JAXBException e) {
             LOGGER.error("Error while creating unmarshaller!", e);

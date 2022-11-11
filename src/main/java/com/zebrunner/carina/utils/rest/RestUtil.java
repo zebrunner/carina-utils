@@ -26,8 +26,11 @@ import org.slf4j.LoggerFactory;
 import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
 
-public class RestUtil {
+public final class RestUtil {
     private static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+
+    private RestUtil() {
+    }
 
     public static Response sendHttpPost(String contentType, String payload, String httpPostCommand) {
         return sendHttpPost(contentType, payload, httpPostCommand, true);
@@ -114,8 +117,8 @@ public class RestUtil {
         String strResponse = null;
         try {
             strResponse = response.asString();
-        } catch (Throwable thr) {
-            LOGGER.info("Error: " + thr.getMessage());
+        } catch (Exception e) {
+            LOGGER.info("Error: {}",  e.getMessage(), e);
         }
         return strResponse;
     }

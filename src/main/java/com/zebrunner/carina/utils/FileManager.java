@@ -15,12 +15,12 @@
  *******************************************************************************/
 package com.zebrunner.carina.utils;
 
-import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.io.FileUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.lang.invoke.MethodHandles;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
@@ -28,9 +28,15 @@ import java.nio.file.Files;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
+
+import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.io.FileUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class FileManager {
 
@@ -47,17 +53,16 @@ public class FileManager {
         }
     }
 
-    public synchronized static List<File> getFilesInDir(File directory) {
-        List<File> files = new ArrayList<File>();
+    public static synchronized List<File> getFilesInDir(File directory) {
+        List<File> files = new ArrayList<>();
         try {
             File[] fileArray = directory.listFiles();
-
             if (fileArray == null) {
+                LOGGER.debug("'{}' does not denote a directory, or if an I/O error occurs when an attempt was made to get a list of files",
+                        directory.getAbsolutePath());
                 return files;
             }
-            for (int i = 0; i < fileArray.length; i++) {
-                files.add(fileArray[i]);
-            }
+            files.addAll(Arrays.asList(fileArray));
         } catch (Exception e) {
             LOGGER.error("Unable to get files in dir!", e);
         }
@@ -66,27 +71,23 @@ public class FileManager {
 
     public static void createFileWithContent(String filePath, String content) {
         File file = new File(filePath);
-
         try {
-            file.createNewFile();
-            FileWriter fw = new FileWriter(file);
-            try {
-                fw.write(content);
-            } catch (Exception e) {
-                LOGGER.debug("Error during FileWriter append.", e);
-            } finally {
-                try {
-                    fw.close();
-                } catch (Exception e) {
-                    LOGGER.debug("Error during FileWriter close.", e);
-                }
+            boolean isSuccess = file.createNewFile();
+            if (!isSuccess) {
+                LOGGER.debug("File '{}' already exists.", file.getAbsolutePath());
             }
-
         } catch (IOException e) {
-            LOGGER.debug("Error during creating new file with path " + filePath, e);
+            LOGGER.debug("Error during creating new file with path {}.", filePath, e);
+            return;
+        }
+
+        try (FileWriter fw = new FileWriter(file)) {
+            fw.write(content);
+        } catch (IOException e) {
+            LOGGER.debug("Error during writing content to the file.", e);
         }
     }
-    
+
     /**
      * Archive list of files into the single zip archive.
      *

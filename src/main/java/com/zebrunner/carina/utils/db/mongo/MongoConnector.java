@@ -21,6 +21,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.zebrunner.carina.utils.R;
+import com.zebrunner.carina.utils.exception.InvalidConfigurationException;
 import org.apache.commons.lang3.StringUtils;
 
 import com.mongodb.MongoClient;
@@ -35,14 +36,17 @@ import com.zebrunner.carina.utils.commons.SpecialKeywords;
  *         <a href="mailto:hursevich@gmail.com">Aliaksei_Khursevich</a>
  *
  */
-public class MongoConnector {
-    private static Map<String, MongoClient> clients = new HashMap<String, MongoClient>();
+public final class MongoConnector {
+    private static final Map<String, MongoClient> clients = new HashMap<>();
 
     private static String host = R.DATABASE.get("mongo.host");
     private static String port = R.DATABASE.get("mongo.port");
     private static String user = R.DATABASE.get("mongo.user");
     private static String password = R.DATABASE.get("mongo.password");
     private static String database = R.DATABASE.get("mongo.database");
+
+    private MongoConnector() {
+    }
 
     /**
      * Creates client for DB specified in properties.
@@ -51,7 +55,7 @@ public class MongoConnector {
      * @throws NumberFormatException java.lang.NumberFormatException
      * @throws UnknownHostException java.net.UnknownHostException
      */
-    public static MongoClient createClient() throws NumberFormatException, UnknownHostException {
+    public static MongoClient createClient() throws UnknownHostException {
         if (!clients.containsKey(database)) {
             validateConfig(database);
             MongoCredential credential = MongoCredential.createMongoCRCredential(user, database, password.toCharArray());
@@ -68,7 +72,7 @@ public class MongoConnector {
      * @throws NumberFormatException java.lang.NumberFormatException
      * @throws UnknownHostException java.net.UnknownHostException
      */
-    public static MongoClient createClient(String database) throws NumberFormatException, UnknownHostException {
+    public static MongoClient createClient(String database) throws UnknownHostException {
         if (!clients.containsKey(database)) {
             validateConfig(database);
             MongoCredential credential = MongoCredential.createMongoCRCredential(user, database, password.toCharArray());
@@ -81,9 +85,9 @@ public class MongoConnector {
         if (StringUtils.isEmpty(host) || SpecialKeywords.MUST_OVERRIDE.equals(host)
                 || StringUtils.isEmpty(port) || SpecialKeywords.MUST_OVERRIDE.equals(port)
                 || StringUtils.isEmpty(user) || SpecialKeywords.MUST_OVERRIDE.equals(user)
-                || StringUtils.isEmpty(password) || SpecialKeywords.MUST_OVERRIDE.equals(password)
+                || StringUtils.isEmpty(password) || StringUtils.equals(SpecialKeywords.MUST_OVERRIDE, password)
                 || StringUtils.isEmpty(database) || SpecialKeywords.MUST_OVERRIDE.equals(database)) {
-            throw new RuntimeException("Invalid MongoDB config!");
+            throw new InvalidConfigurationException("Invalid MongoDB config!");
         }
     }
 

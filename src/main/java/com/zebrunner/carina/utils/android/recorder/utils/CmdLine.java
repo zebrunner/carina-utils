@@ -22,34 +22,14 @@ import java.util.List;
  * Date: 8/19/2014
  * Time: 12:52 AM
  */
-public class CmdLine {
+public final class CmdLine {
 
-    public static String[] createPlatformDependentCommandLine(String... command) {
-        /*
-         * if (Platform.IS_MAC_OS_X || Platform.IS_LINUX) {
-         * int newArraySize = command.length + 2;
-         * 
-         * String[] newCommands = new String[newArraySize];
-         * newCommands[0] = "\"";
-         * int i = 1;
-         * for (String cmd : command) {
-         * newCommands[i] = cmd;
-         * i++;
-         * }
-         * newCommands[newArraySize - 1] = "\"";
-         * 
-         * return mergeCommands(Platform.getCmd(), newCommands);
-         * }
-         * //win
-         */ return mergeCommands(Platform.getCmd(), command);
+    private CmdLine() {
     }
 
-    /*
-     * public static String[] createPlatformDependentCommandLine(String[] executable, String[] command) {
-     * String[] execCmd = insertCommandsAfter(Platform.getCmd(), executable);
-     * return mergeCommands(execCmd, command);
-     * }
-     */
+    public static String[] createPlatformDependentCommandLine(String... command) {
+        return mergeCommands(Platform.getCmd(), command);
+    }
 
     public static String[] insertCommandsAfter(String[] originalCmd, String... extraCommands) {
         return mergeCommands(originalCmd, extraCommands);

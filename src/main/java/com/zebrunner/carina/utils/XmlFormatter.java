@@ -29,8 +29,11 @@ import org.w3c.dom.ls.DOMImplementationLS;
 import org.w3c.dom.ls.LSSerializer;
 import org.xml.sax.InputSource;
 
-public class XmlFormatter {
+public final class XmlFormatter {
     private static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+
+    private XmlFormatter() {
+    }
 
     public static String prettyPrint(String xml) {
         if (StringUtils.isEmpty(xml))
@@ -38,7 +41,10 @@ public class XmlFormatter {
 
         try {
             final InputSource src = new InputSource(new StringReader(xml));
-            final Node document = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(src).getDocumentElement();
+            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+            // to be compliant, completely disable DOCTYPE declaration:
+            factory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
+            final Node document = factory.newDocumentBuilder().parse(src).getDocumentElement();
             final boolean keepDeclaration = xml.startsWith("<?xml");
 
             final DOMImplementationRegistry registry = DOMImplementationRegistry.newInstance();

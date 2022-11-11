@@ -15,6 +15,7 @@
  *******************************************************************************/
 package com.zebrunner.carina.utils;
 
+import java.io.IOException;
 import java.io.InputStream;
 
 import org.testng.Assert;
