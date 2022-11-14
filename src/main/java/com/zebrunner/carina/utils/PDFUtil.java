@@ -50,21 +50,22 @@ public final class PDFUtil {
             throw new IllegalArgumentException("inputStream argument cannot be null");
         }
         PDFTextStripper pdfStripper = null;
+        PDFParser parser = null;
         try (inputStream;
                 RandomAccessBufferedFileInputStream randomAccessBufferedFileInputStream = new RandomAccessBufferedFileInputStream(inputStream)) {
-            PDFParser parser = new PDFParser(randomAccessBufferedFileInputStream);
+            parser = new PDFParser(randomAccessBufferedFileInputStream);
             parser.parse();
-            try (
-                    COSDocument cosDoc = parser.getDocument();
-                    PDDocument pdDoc = new PDDocument(cosDoc)) {
-                pdfStripper = new PDFTextStripper();
-                pdfStripper.setSortByPosition(true);
-                pdfStripper.setStartPage(startPage);
-                pdfStripper.setEndPage(endPage);
-                return pdfStripper.getText(pdDoc);
-            } catch (IOException e) {
-                throw new UncheckedIOException(e);
-            }
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+
+        try (COSDocument cosDoc = parser.getDocument();
+                PDDocument pdDoc = new PDDocument(cosDoc)) {
+            pdfStripper = new PDFTextStripper();
+            pdfStripper.setSortByPosition(true);
+            pdfStripper.setStartPage(startPage);
+            pdfStripper.setEndPage(endPage);
+            return pdfStripper.getText(pdDoc);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }

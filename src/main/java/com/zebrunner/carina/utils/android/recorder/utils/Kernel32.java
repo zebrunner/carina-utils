@@ -18,7 +18,7 @@ package com.zebrunner.carina.utils.android.recorder.utils;
 import com.sun.jna.Native;
 
 interface Kernel32 extends W32API {
-    Kernel32 INSTANCE = (Kernel32) Native.loadLibrary("kernel32", Kernel32.class, DEFAULT_OPTIONS);
+    Kernel32 INSTANCE = (Kernel32) Native.loadLibrary("kernel32", Kernel32.class, Boolean.getBoolean("w32.ascii") ? ASCII_OPTIONS : UNICODE_OPTIONS);
 
     HANDLE GetCurrentProcess();
 

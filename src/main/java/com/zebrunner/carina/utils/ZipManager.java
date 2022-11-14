@@ -21,6 +21,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.UncheckedIOException;
 import java.lang.invoke.MethodHandles;
 import java.nio.file.Path;
 import java.util.Enumeration;
@@ -47,7 +48,7 @@ public final class ZipManager {
                     File folder = path.toFile();
                     boolean isCreated = folder.mkdir();
                     if (!isCreated) {
-                        throw new RuntimeException("Folder not created: " + folder.getAbsolutePath());
+                        throw new UncheckedIOException(new IOException("Folder not created: " + folder.getAbsolutePath()));
                     }
                     continue;
                 }

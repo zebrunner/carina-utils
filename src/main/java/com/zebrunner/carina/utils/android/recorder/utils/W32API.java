@@ -18,7 +18,6 @@ package com.zebrunner.carina.utils.android.recorder.utils;
 /* 
  */
 
-import java.util.HashMap;
 import java.util.Map;
 
 import com.sun.jna.FromNativeContext;
@@ -43,22 +42,9 @@ interface W32API extends StdCallLibrary {
     int ERROR_PATH_NOT_FOUND = 3;
 
     /** Standard options to use the unicode version of a w32 API. */
-    Map UNICODE_OPTIONS = new HashMap() {
-        {
-            put(OPTION_TYPE_MAPPER, W32APITypeMapper.UNICODE);
-            put(OPTION_FUNCTION_MAPPER, W32APIFunctionMapper.UNICODE);
-        }
-    };
-
+    Map UNICODE_OPTIONS = Map.of(OPTION_TYPE_MAPPER, W32APITypeMapper.UNICODE, OPTION_FUNCTION_MAPPER, W32APIFunctionMapper.UNICODE);
     /** Standard options to use the ASCII/MBCS version of a w32 API. */
-    Map ASCII_OPTIONS = new HashMap() {
-        {
-            put(OPTION_TYPE_MAPPER, W32APITypeMapper.ASCII);
-            put(OPTION_FUNCTION_MAPPER, W32APIFunctionMapper.ASCII);
-        }
-    };
-
-    Map DEFAULT_OPTIONS = Boolean.getBoolean("w32.ascii") ? ASCII_OPTIONS : UNICODE_OPTIONS;
+    Map ASCII_OPTIONS = Map.of(OPTION_TYPE_MAPPER, W32APITypeMapper.ASCII, OPTION_FUNCTION_MAPPER, W32APIFunctionMapper.ASCII);
 
     class HANDLE extends PointerType {
         @Override
