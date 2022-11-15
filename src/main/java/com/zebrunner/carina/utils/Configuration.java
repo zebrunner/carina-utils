@@ -27,8 +27,8 @@ import org.openqa.selenium.remote.CapabilityType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.zebrunner.carina.utils.exception.MissingParameterException;
 import com.zebrunner.carina.utils.commons.SpecialKeywords;
+import com.zebrunner.carina.utils.exception.MissingParameterException;
 
 /**
  * Configuration utility.
@@ -240,6 +240,18 @@ public class Configuration {
      */
     public static String get(Parameter param) {
         String value = R.CONFIG.get(param.getKey());
+        return !(value == null || value.equalsIgnoreCase(SpecialKeywords.NULL)) ? value : StringUtils.EMPTY;
+    }
+
+    /**
+     * Get decrypted configuration value from startup properties or from configuration
+     * file if not found in startup args.
+     *
+     * @param param parameter key
+     * @return the decrypted parameter value if it is found by key, "" otherwise
+     */
+    public static String getDecrypted(Parameter param) {
+        String value = R.CONFIG.getDecrypted(param.getKey());
         return !(value == null || value.equalsIgnoreCase(SpecialKeywords.NULL)) ? value : StringUtils.EMPTY;
     }
 
