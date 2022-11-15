@@ -96,7 +96,8 @@ public final class Platform {
     }
 
     private static int getUnixProcessPID(Process process) {
-        if (process.getClass().getName().equals("java.lang.UNIXProcess")) {
+        String processClass = process.getClass().getName();
+        if ("java.lang.UNIXProcess".equals(processClass)) {
             try {
                 Field f = process.getClass().getDeclaredField("pid");
                 f.setAccessible(true);
@@ -110,7 +111,9 @@ public final class Platform {
 
     private static int getWinPid(Process process) {
         int pid = -1;
-        if (process.getClass().getName().equals("java.lang.Win32Process") || process.getClass().getName().equals("java.lang.ProcessImpl")) {
+        String processClass = process.getClass().getName();
+
+        if ("java.lang.Win32Process".equals(processClass) || "java.lang.ProcessImpl".equals(processClass)) {
             try {
                 Field f = process.getClass().getDeclaredField("handle");
                 f.setAccessible(true);

@@ -57,6 +57,9 @@ public class L10N {
     
     private static SoftAssert mistakes;
 
+    private L10N() {
+    }
+
 
     /**
      * Load L10N resource bundle corresponding to a specific locale.

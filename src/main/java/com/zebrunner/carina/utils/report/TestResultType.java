@@ -26,11 +26,7 @@ public enum TestResultType {
     FAIL("FAILED"),
     SKIP("SKIPPED");
 
-    private String result;
-
-    int passed;
-    int failed;
-    int skipped;
+    private final String result;
 
     TestResultType(String result) {
         this.result = result;
@@ -38,29 +34,5 @@ public enum TestResultType {
 
     public String getName() {
         return result;
-    }
-
-    public int getPassed() {
-        return passed;
-    }
-
-    public void setPassed(int passed) {
-        this.passed = passed;
-    }
-
-    public int getFailed() {
-        return failed;
-    }
-
-    public void setFailed(int failed) {
-        this.failed = failed;
-    }
-
-    public int getSkipped() {
-        return skipped;
-    }
-
-    public void setSkipped(int skipped) {
-        this.skipped = skipped;
     }
 }
