@@ -218,7 +218,16 @@ public class L10N {
     public static void setLocale(String loc) {
         LOGGER.warn("Default locale: {} was overriden by {}", locale, loc);
         locale = getLocale(loc);
-    }    
+    }
+
+    /**
+     * Get current locale
+     * 
+     * @return see {@link Locale}
+     */
+    public static Locale getLocale() {
+        return locale;
+    }
     
     /**
      * Flush missed localization resources to property file.
