@@ -106,6 +106,11 @@ public class Configuration {
 
         EXPLICIT_TIMEOUT("explicit_timeout"),
 
+        /**
+         * Timeout is seconds to read response from Selenium/Appium.
+         */
+        READ_TIMEOUT("read_timeout"),
+
         AUTO_DOWNLOAD("auto_download"),
 
         AUTO_DOWNLOAD_APPS("auto_download_apps"),
