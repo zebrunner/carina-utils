@@ -322,10 +322,6 @@ public class Configuration {
         }
     }
 
-    public static String getEnvArg(String key) {
-        return envArgResolver.get(get(Parameter.ENV), key);
-    }
-
     public static IEnvArgResolver getEnvArgResolver() {
         return envArgResolver;
     }
@@ -343,6 +339,19 @@ public class Configuration {
     }
 
     /**
+     * Get value of custom configuration parameter in {@link Configuration.Parameter#ENV},
+     * for example {@code env.parameter=value}<br>
+     * Decryption is not applied (initial implementation). If you want to get the decoded value use {@link #getEnvArg(String, String, boolean)}
+     * with alias equals {@code ""}
+     *
+     * @param key custom parameter key
+     * @return the parameter value if it is found, or "" if parameter was not found or it equals {@link SpecialKeywords#NULL}
+     */
+    public static String getEnvArg(String key) {
+        return getEnvArg(key, "", false);
+    }
+
+    /**
      * Get value of configuration parameter in {@link Configuration.Parameter#ENV} with alias,
      * for example {@code env.alias.parameter=value}<br>
      * Decryption is applied
@@ -356,7 +365,20 @@ public class Configuration {
     }
 
     /**
-     * Get configuration value with {@link Configuration.Parameter#ENV} with alias,
+     * Get value of custom configuration parameter in {@link Configuration.Parameter#ENV} with alias,
+     * for example {@code env.alias.parameter=value}<br>
+     * Decryption is applied
+     *
+     * @param key custom parameter key
+     * @param alias alias in environment
+     * @return the parameter value if it is found, or "" if parameter was not found or it equals {@link SpecialKeywords#NULL}
+     */
+    public static String getEnvArg(String key, String alias) {
+        return getEnvArg(key, alias, true);
+    }
+
+    /**
+     * Get configuration value in {@link Configuration.Parameter#ENV} with alias,
      * for example {@code env.alias.parameter=value}
      *
      * @param key parameter key, see {@link Parameter}
@@ -365,6 +387,20 @@ public class Configuration {
      * @return the parameter value if it is found, or "" if parameter was not found or it equals {@link SpecialKeywords#NULL}
      */
     public static String getEnvArg(Parameter key, String alias, boolean isDeciph) {
+       return getEnvArg(key.getKey(), alias, isDeciph);
+    }
+
+
+    /**
+     * Get value of custom configuration parameter in {@link Configuration.Parameter#ENV} with alias,
+     * for example {@code env.alias.parameter=value}<br>
+     *
+     * @param key custom parameter key
+     * @param alias alias in environment
+     * @param isDeciph apply decryption or not
+     * @return the parameter value if it is found, or "" if parameter was not found or it equals {@link SpecialKeywords#NULL}
+     */
+    public static String getEnvArg(String key, String alias, boolean isDeciph) {
         if (Configuration.isNull(Configuration.Parameter.ENV)) {
             throw new MissingParameterException("Configuration parameter 'env' should be set!");
         }
@@ -375,7 +411,7 @@ public class Configuration {
                     .append(alias);
         }
         sb.append(".")
-                .append(key.getKey());
+                .append(key);
 
         String value = isDeciph ? R.CONFIG.getDecrypted(sb.toString()) : R.CONFIG.get(sb.toString());
         return !(value == null || value.equalsIgnoreCase(SpecialKeywords.NULL)) ? value : StringUtils.EMPTY;
