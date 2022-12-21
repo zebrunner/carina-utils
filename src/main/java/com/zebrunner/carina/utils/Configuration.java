@@ -18,6 +18,7 @@ package com.zebrunner.carina.utils;
 import java.lang.invoke.MethodHandles;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -218,10 +219,16 @@ public class Configuration {
 
         LANGUAGE("language"),
 
-        W3C("w3c");
+        W3C("w3c"),
+
+        // Database parameters
+        DB_URL("db.url"),
+
+        DB_USERNAME("db.username"),
+
+        DB_PASSWORD("db.password");
 
         private final String key;
-
         Parameter(String key) {
             this.key = key;
         }
@@ -321,6 +328,57 @@ public class Configuration {
 
     public static IEnvArgResolver getEnvArgResolver() {
         return envArgResolver;
+    }
+
+    /**
+     * Get value of configuration parameter in {@link Configuration.Parameter#ENV},
+     * for example {@code env.parameter=value}<br>
+     * Decryption is applied
+     *
+     * @param key parameter key, see {@link Parameter}
+     * @return the parameter value if it is found, or "" if parameter was not found or it equals {@link SpecialKeywords#NULL}
+     */
+    public static String getEnvArg(Parameter key) {
+        return getEnvArg(key, "");
+    }
+
+    /**
+     * Get value of configuration parameter in {@link Configuration.Parameter#ENV} with alias,
+     * for example {@code env.alias.parameter=value}<br>
+     * Decryption is applied
+     *
+     * @param key parameter key, see {@link Parameter}
+     * @param alias alias in environment
+     * @return the parameter value if it is found, or "" if parameter was not found or it equals {@link SpecialKeywords#NULL}
+     */
+    public static String getEnvArg(Parameter key, String alias) {
+        return getEnvArg(key, alias, true);
+    }
+
+    /**
+     * Get configuration value with {@link Configuration.Parameter#ENV} with alias,
+     * for example {@code env.alias.parameter=value}
+     *
+     * @param key parameter key, see {@link Parameter}
+     * @param alias alias in environment
+     * @param isDeciph apply decryption or not
+     * @return the parameter value if it is found, or "" if parameter was not found or it equals {@link SpecialKeywords#NULL}
+     */
+    public static String getEnvArg(Parameter key, String alias, boolean isDeciph) {
+        if (Configuration.isNull(Configuration.Parameter.ENV)) {
+            throw new MissingParameterException("Configuration parameter 'env' should be set!");
+        }
+        Objects.requireNonNull(alias, "Alias must not be null");
+        StringBuilder sb = new StringBuilder(Configuration.get(Configuration.Parameter.ENV));
+        if (!alias.isEmpty()) {
+            sb.append(".")
+                    .append(alias);
+        }
+        sb.append(".")
+                .append(key.getKey());
+
+        String value = isDeciph ? R.CONFIG.getDecrypted(sb.toString()) : R.CONFIG.get(sb.toString());
+        return !(value == null || value.equalsIgnoreCase(SpecialKeywords.NULL)) ? value : StringUtils.EMPTY;
     }
 
     public static boolean isNull(Parameter param) {
