@@ -34,6 +34,12 @@
             <organization>Zebrunner</organization>
             <organizationUrl>https://zebrunner.com</organizationUrl>
         </developer>
+        <developer>
+            <name>Andrei Kamarouski</name>
+            <email>akamarouski@zebrunner.com</email>
+            <organization>Zebrunner</organization>
+            <organizationUrl>https://zebrunner.com</organizationUrl>
+        </developer>
     </developers>
 
     <scm>
