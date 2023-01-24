@@ -30,8 +30,8 @@ import javax.xml.transform.Source;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import jakarta.xml.bind.JAXBContext;
-import jakarta.xml.bind.JAXBException;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
 
 class Marshaller {
 
@@ -90,7 +90,7 @@ class Marshaller {
      *            - Class
      * @return - Marshaller
      */
-    private jakarta.xml.bind.Marshaller getMarshaller(Class<?> clazz) {
+    private javax.xml.bind.Marshaller getMarshaller(Class<?> clazz) {
         try {
 
             return getJAXBContext(clazz)
@@ -109,7 +109,7 @@ class Marshaller {
      *            - Class
      * @return - Unmarshaller
      */
-    private jakarta.xml.bind.Unmarshaller getUnmarshaller(Class<?> clazz) {
+    private javax.xml.bind.Unmarshaller getUnmarshaller(Class<?> clazz) {
         try {
 
             return getJAXBContext(clazz)
