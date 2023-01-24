@@ -16,16 +16,15 @@
 
 package com.zebrunner.carina.utils;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.Serializable;
-import java.io.Writer;
+import com.zebrunner.carina.utils.marshaller.MarshallerHelper;
+import com.zebrunner.carina.utils.marshaller.exception.ParserException;
+import org.testng.Assert;
+import org.testng.annotations.Test;
+
+import javax.xml.bind.annotation.*;
+import javax.xml.transform.Source;
+import javax.xml.transform.stream.StreamSource;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -33,20 +32,6 @@ import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
-
-import javax.xml.transform.Source;
-import javax.xml.transform.stream.StreamSource;
-
-import org.testng.Assert;
-import org.testng.annotations.Test;
-
-import com.zebrunner.carina.utils.marshaller.MarshallerHelper;
-import com.zebrunner.carina.utils.marshaller.exception.ParserException;
-
-import jakarta.xml.bind.annotation.XmlAccessType;
-import jakarta.xml.bind.annotation.XmlAccessorType;
-import jakarta.xml.bind.annotation.XmlElement;
-import jakarta.xml.bind.annotation.XmlRootElement;
 
 public class XmlUtilsTest {
 

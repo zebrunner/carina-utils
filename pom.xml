@@ -60,7 +60,7 @@
         <jackson.version>2.14.1</jackson.version>
         <imgscalr-lib.version>4.2</imgscalr-lib.version>
         <gson.version>2.9.0</gson.version>
-        <jakarta-xml-bind.version>4.0.0</jakarta-xml-bind.version>
+        <jaxb-api.version>2.2.2</jaxb-api.version>
         <mokito-core.version>2.18.0</mokito-core.version>
         <!-- Never add mockito-all as compile dependency as it has their own invalid hamcrest-all implementation otherwise api fail to common with:
                         org.hamcrest.core.IsInstanceOf.any(Ljava/lang/Class;)Lorg/hamcrest/Matcher
@@ -214,15 +214,9 @@
         </dependency>
 
         <dependency>
-            <groupId>jakarta.xml.bind</groupId>
-            <artifactId>jakarta.xml.bind-api</artifactId>
-            <version>${jakarta-xml-bind.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.sun.xml.bind</groupId>
-            <artifactId>jaxb-impl</artifactId>
-            <version>${jakarta-xml-bind.version}</version>
-            <scope>runtime</scope>
+            <groupId>javax.xml.bind</groupId>
+            <artifactId>jaxb-api</artifactId>
+            <version>${jaxb-api.version}</version>
         </dependency>
 
         <dependency>
