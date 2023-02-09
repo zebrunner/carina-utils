@@ -396,7 +396,8 @@ public enum R {
     }
 
 	public Properties getProperties() {
-		Properties globalProp = propertiesHolder.get(resourceFile);
+        Properties globalProp = new Properties();
+        globalProp.putAll(propertiesHolder.get(resourceFile));
 		// Glodal properties will be updated with test specific properties
 		if (!getTestProperties().isEmpty()) {
 			Properties testProp = testProperties.get();
