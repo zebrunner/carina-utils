@@ -57,6 +57,8 @@ public class L10N {
     
     private static SoftAssert mistakes;
 
+    private static String L10N_PREFIX = "{L10N:";
+
     private L10N() {
     }
 
@@ -152,6 +154,11 @@ public class L10N {
      * @return String
      */
     public static String getText(String key) {
+        if (key.contains(L10N_PREFIX)) {
+            key = key.replace(L10N_PREFIX, "");
+            key = key.substring(0, key.length() - 1);
+        }
+
         LOGGER.debug("getText: L10N bundle size: {}", resBoundles.size());
         for (ResourceBundle bundle : resBoundles) {
             try {
