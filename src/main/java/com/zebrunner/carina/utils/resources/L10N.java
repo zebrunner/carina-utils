@@ -24,9 +24,11 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.MissingResourceException;
 import java.util.Properties;
 import java.util.ResourceBundle;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
@@ -35,6 +37,7 @@ import org.testng.asserts.SoftAssert;
 
 import com.zebrunner.carina.utils.Configuration;
 import com.zebrunner.carina.utils.IWebElement;
+import com.zebrunner.carina.utils.R;
 import com.zebrunner.carina.utils.commons.SpecialKeywords;
 
 /*
@@ -49,17 +52,16 @@ import com.zebrunner.carina.utils.commons.SpecialKeywords;
  * </configuration>
  */
 public class L10N {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
-    
-    private static Locale locale = getLocale(Configuration.get(Configuration.Parameter.LOCALE));
-    private static List<ResourceBundle> resBoundles = new ArrayList<>();
-    private static final Properties missedResources = new Properties();
-    
+    private static final Map<String, Locale> LOCALE_MAP = new ConcurrentHashMap<>();
+    private static final String L10N_PREFIX = "{L10N:";
+    private static final Properties MISSED_RESOURCES = new Properties();
+    private static List<ResourceBundle> resBundles = new ArrayList<>();
     private static SoftAssert mistakes;
 
-    private static String L10N_PREFIX = "{L10N:";
-
     private L10N() {
+        // hide
     }
 
 
@@ -119,7 +121,7 @@ public class L10N {
                     loadedResources.add(resource);
                     try {
                         LOGGER.debug("Adding '{}' resource...", resource);
-                        resBoundles.add(ResourceBundle.getBundle(resource, locale));
+                        resBundles.add(ResourceBundle.getBundle(resource, getLocale()));
                         LOGGER.debug("Resource '{}' added.", resource);
                     } catch (MissingResourceException e) {
                         LOGGER.debug("No resource bundle for the " + resource + " can be found", e);
@@ -128,7 +130,7 @@ public class L10N {
                     LOGGER.debug("Requested resource '{}' is already loaded into the ResourceBundle!", resource);
                 }
             }
-            LOGGER.debug("init: L10N bundle size: {}", resBoundles.size());
+            LOGGER.debug("init: L10N bundle size: {}", resBundles.size());
         } catch (IllegalArgumentException e) {
             LOGGER.debug("L10N folder with resources is missing!");
         }
@@ -143,7 +145,7 @@ public class L10N {
     public static void load(List<ResourceBundle> resources) {
         // #1679: L10N: made assertion threads dependent
         mistakes = new SoftAssert();
-        resBoundles = resources;
+        resBundles = resources;
     }
     
     /**
@@ -159,11 +161,11 @@ public class L10N {
             key = key.substring(0, key.length() - 1);
         }
 
-        LOGGER.debug("getText: L10N bundle size: {}", resBoundles.size());
-        for (ResourceBundle bundle : resBoundles) {
+        LOGGER.debug("getText: L10N bundle size: {}", resBundles.size());
+        for (ResourceBundle bundle : resBundles) {
             try {
                 String value = bundle.getString(key);
-                if (bundle.getLocale().toString().equals(locale.toString())) {
+                if (bundle.getLocale().toString().equals(getLocale().toString())) {
                     return value;
                 }
             } catch (MissingResourceException e) {
@@ -201,7 +203,7 @@ public class L10N {
 
             String newItem = key + "=" + actualText;
             LOGGER.info("Making new localization string: {}", newItem);
-            missedResources.setProperty(key, actualText);
+            MISSED_RESOURCES.setProperty(key, actualText);
         } else {
             LOGGER.debug("Found localization text '{}' in {} encoding: {}", actualText, getEncoding(), expectedText);
         }
@@ -217,14 +219,18 @@ public class L10N {
     }
     
     /**
-     * Override default locale.
+     * Override default locale globally.
      *
      * @param loc String
-     *
      */       
     public static void setLocale(String loc) {
-        LOGGER.warn("Default locale: {} was overriden by {}", locale, loc);
-        locale = getLocale(loc);
+        setLocale(loc, false);
+    }
+
+    public static void setLocale(String loc, boolean currentTestOnly) {
+        LOGGER.warn("Default locale: {} will be overwritten by {} {}.", Configuration.get(Configuration.Parameter.LOCALE), loc,
+                currentTestOnly ? "for current test only" : "globally");
+        R.CONFIG.put(Configuration.Parameter.LOCALE.getKey(), loc, currentTestOnly);
     }
 
     /**
@@ -233,29 +239,31 @@ public class L10N {
      * @return see {@link Locale}
      */
     public static Locale getLocale() {
-        return locale;
+        return getLocale(Configuration.get(Configuration.Parameter.LOCALE));
     }
     
     /**
      * Flush missed localization resources to property file.
      */
     public static void flush() {
-        if (missedResources.size() == 0) {
+        if (MISSED_RESOURCES.size() == 0) {
             LOGGER.info("There are no new localization properties.");
             return;
         }
 
+        Locale locale = getLocale();
+
         LOGGER.info("New localization for '{}'", locale);
-        LOGGER.info("Properties: {}", missedResources);
+        LOGGER.info("Properties: {}", MISSED_RESOURCES);
 
         String missedResorceFile = "missed_" + locale + ".properties";
         try (OutputStream fostream = new FileOutputStream(missedResorceFile);
                 Writer ostream = new OutputStreamWriter(fostream, getEncoding());) {
-            missedResources.store(ostream, null);
+            MISSED_RESOURCES.store(ostream, null);
         } catch (Exception e) {
             LOGGER.error("Unable to store missed resources: {}!",missedResorceFile, e);
         }
-        missedResources.clear();
+        MISSED_RESOURCES.clear();
     }
 
     private static String getEncoding() {
@@ -263,14 +271,17 @@ public class L10N {
     }
 
     private static Locale getLocale(String locale) {
-        String[] localeSetttings = locale.trim().split("_");
-        String lang = "";
-        String country = "";
-        lang = localeSetttings[0];
-        if (localeSetttings.length > 1) {
-            country = localeSetttings[1];
+        if (!LOCALE_MAP.containsKey(locale)) {
+            String[] localeSetttings = locale.trim().split("_");
+            String lang = "";
+            String country = "";
+            lang = localeSetttings[0];
+            if (localeSetttings.length > 1) {
+                country = localeSetttings[1];
+            }
+            LOCALE_MAP.put(locale, new Locale(lang, country));
         }
-        return new Locale(lang, country);
+        return LOCALE_MAP.get(locale);
     }
 
 }
