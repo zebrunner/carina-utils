@@ -224,8 +224,6 @@ public class Configuration {
 
         LANGUAGE("language"),
 
-        W3C("w3c"),
-
         // Database parameters
         DB_URL("db.url"),
 
