@@ -99,6 +99,7 @@ public class SpecialKeywords {
     public static final String DESKTOP = "desktop";
     public static final String MOBILE = "mobile";
 
+    @Deprecated(forRemoval = true, since = "1.0.2")
     public static final String CUSTOM = "custom";
 
     public static final String ANDROID = "Android";
