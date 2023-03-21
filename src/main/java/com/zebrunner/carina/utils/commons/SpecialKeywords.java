@@ -99,6 +99,7 @@ public class SpecialKeywords {
     public static final String DESKTOP = "desktop";
     public static final String MOBILE = "mobile";
 
+    @Deprecated(forRemoval = true, since = "1.0.2")
     public static final String CUSTOM = "custom";
 
     public static final String ANDROID = "Android";
@@ -167,7 +168,6 @@ public class SpecialKeywords {
     public static final String BROWSERSTACK_PLATFORM_NAME = "capabilities.os";
     public static final String BROWSERSTACK_PLATFORM_VERSION = "capabilities.os_version";
     public static final String PROVIDER = "capabilities.provider";
-    public static final String PROVIDER_OPTIONS = "capabilities.providerOptions";
 
     public static final String ADB_EXEC_TIMEOUT = "capabilities.adbExecTimeout";
     public static final String MOBILE_DEVICE_UDID = "capabilities.udid";
