@@ -16,6 +16,7 @@
 package com.zebrunner.carina.utils;
 
 import java.lang.invoke.MethodHandles;
+import java.util.Arrays;
 import java.util.Map;
 import java.util.Objects;
 import java.util.regex.Matcher;
@@ -24,6 +25,7 @@ import java.util.regex.Pattern;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.testng.ITestNGMethod;
 
 import com.zebrunner.carina.utils.commons.SpecialKeywords;
 import com.zebrunner.carina.utils.exception.InvalidArgsException;
@@ -158,5 +160,20 @@ public class ParameterGenerator {
 
     public static void setUUID(String uUID) {
         uuid = uUID;
+    }
+
+    /**
+     * Generate hash by class name, method name and arg values.
+     *
+     * @param args Object[] test method arguments
+     * @param method ITestNGMethod
+     * @return String hash
+     */
+    public static String hash(Object[] args, ITestNGMethod method) {
+        String toHash = "";
+        toHash += Arrays.hashCode(args);
+        toHash += method.getMethodName();
+        toHash += (method.getRealClass());
+        return String.valueOf(toHash.hashCode());
     }
 }
