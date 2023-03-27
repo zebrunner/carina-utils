@@ -50,9 +50,25 @@ public class SpecialKeywords {
     public static final String PLACEHOLER = "\\$\\{[^\\{\\}]*\\}";
 
     public static final String MUST_OVERRIDE = "{must_override}";
+    /**
+     * @deprecated use {@link com.zebrunner.carina.utils.commons.SpecialKeywords#DS_ARGS} to set args for data provider from config file
+     */
+    @Deprecated(forRemoval = true, since = "1.0.3")
     public static final String EXCEL_DS_ARGS = "{excel_ds_args}";
+    /**
+     * @deprecated use {@link com.zebrunner.carina.utils.commons.SpecialKeywords#DS_UID} to set tuid for data provider from config file
+     */
+    @Deprecated(forRemoval = true, since = "1.0.3")
     public static final String EXCEL_DS_UID = "{excel_ds_uid}";
+    /**
+     * @deprecated unused
+     */
+    @Deprecated(forRemoval = true, since = "1.0.3")
     public static final String EXCEL_DS_FLAG = "{excel_ds_flag}";
+    /**
+     * @deprecated use {@link com.zebrunner.carina.utils.commons.SpecialKeywords#DS_FILE} to set data provider's path from config file
+     */
+    @Deprecated(forRemoval = true, since = "1.0.3")
     public static final String EXCEL_DS_FILE = "{excel_ds_file}";
     public static final String EXCEL_DS_SHEET = "{excel_ds_sheet}";
     @Deprecated(since = "8.0.1", forRemoval = true)
@@ -61,6 +77,10 @@ public class SpecialKeywords {
     public static final String DS_CUSTOM_PROVIDER = "{ds_custom_provider}";
     public static final String DS_ARGS = "{ds_args}";
     public static final String DS_UID = "{ds_uid}";
+    /**
+     * @deprecated unused
+     */
+    @Deprecated(forRemoval = true, since = "1.0.3")
     public static final String DS_FLAG = "{ds_flag}";
     public static final String DS_FILE = "{ds_file}";
     public static final String DS_EXECUTE_COLUMN = "{ds_execute_column}";
