@@ -51,12 +51,12 @@ public class SpecialKeywords {
 
     public static final String MUST_OVERRIDE = "{must_override}";
     /**
-     * @deprecated use {@link com.zebrunner.carina.utils.commons.SpecialKeywords#DS_ARGS} to get pattern from config file
+     * @deprecated use {@link com.zebrunner.carina.utils.commons.SpecialKeywords#DS_ARGS} to set args for data provider from config file
      */
     @Deprecated(forRemoval = true, since = "1.0.3")
     public static final String EXCEL_DS_ARGS = "{excel_ds_args}";
     /**
-     * @deprecated use {@link com.zebrunner.carina.utils.commons.SpecialKeywords#DS_UID} to get pattern from config file
+     * @deprecated use {@link com.zebrunner.carina.utils.commons.SpecialKeywords#DS_UID} to set tuid for data provider from config file
      */
     @Deprecated(forRemoval = true, since = "1.0.3")
     public static final String EXCEL_DS_UID = "{excel_ds_uid}";
@@ -66,7 +66,7 @@ public class SpecialKeywords {
     @Deprecated(forRemoval = true, since = "1.0.3")
     public static final String EXCEL_DS_FLAG = "{excel_ds_flag}";
     /**
-     * @deprecated use {@link com.zebrunner.carina.utils.commons.SpecialKeywords#DS_FILE} to get pattern from config file
+     * @deprecated use {@link com.zebrunner.carina.utils.commons.SpecialKeywords#DS_FILE} to set data provider's path from config file
      */
     @Deprecated(forRemoval = true, since = "1.0.3")
     public static final String EXCEL_DS_FILE = "{excel_ds_file}";
