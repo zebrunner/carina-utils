@@ -61,23 +61,23 @@ public class ParameterGenerator {
             }
             matcher = GENERATE_PATTERN.matcher(param);
             if (matcher.find()) {
-                int start = param.indexOf(":") + 1;
-                int end = param.indexOf("}");
+                int start = param.indexOf(':') + 1;
+                int end = param.indexOf('}');
                 int size = Integer.parseInt(param.substring(start, end));
                 return StringUtils.replace(param, matcher.group(), StringGenerator.generateWord(size));
             }
 
             matcher = GENERATEAN_PATTERN.matcher(param);
             if (matcher.find()) {
-                int start = param.indexOf(":") + 1;
-                int end = param.indexOf("}");
+                int start = param.indexOf(':') + 1;
+                int end = param.indexOf('}');
                 int size = Integer.parseInt(param.substring(start, end));
                 return StringUtils.replace(param, matcher.group(), StringGenerator.generateWordAN(size));
             }
 
             matcher = GENERATEN_PATTERN.matcher(param);
             if (matcher.find()) {
-                int start = param.indexOf(":") + 1;
+                int start = param.indexOf(':') + 1;
                 int end = param.indexOf("}");
                 int size = Integer.parseInt(param.substring(start, end));
                 return StringUtils.replace(param, matcher.group(), StringGenerator.generateNumeric(size));
@@ -85,7 +85,7 @@ public class ParameterGenerator {
 
             matcher = ENV_PATTERN.matcher(param);
             if (matcher.find()) {
-                int start = param.indexOf(":") + 1;
+                int start = param.indexOf(':') + 1;
                 int end = param.indexOf("}");
                 String key = param.substring(start, end);
                 return StringUtils.replace(param, matcher.group(), Configuration.getEnvArg(key));
@@ -93,7 +93,7 @@ public class ParameterGenerator {
 
             matcher = TESTDATA_PATTERN.matcher(param);
             if (matcher.find()) {
-                int start = param.indexOf(":") + 1;
+                int start = param.indexOf(':') + 1;
                 int end = param.indexOf("}");
                 String key = param.substring(start, end);
                 return StringUtils.replace(param, matcher.group(), R.TESTDATA.get(key));
@@ -101,8 +101,8 @@ public class ParameterGenerator {
 
             matcher = EXCEL_PATTERN.matcher(param);
             if (matcher.find()) {
-                int start = param.indexOf(":") + 1;
-                int end = param.indexOf("}");
+                int start = param.indexOf(':') + 1;
+                int end = param.indexOf('}');
                 String key = param.substring(start, end);
                 return StringUtils.replace(param, matcher.group(), getValueFromXLS(key));
             }
@@ -111,7 +111,7 @@ public class ParameterGenerator {
             String initStrL10N = param;
             while (matcher.find()) {
                 int start = param.indexOf(SpecialKeywords.L10N + ":") + 5;
-                int end = param.indexOf("}");
+                int end = param.indexOf('}');
                 String key = param.substring(start, end);
                 param = StringUtils.replace(param, matcher.group(), L10N.getText(key));
             }

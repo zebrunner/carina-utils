@@ -64,10 +64,9 @@ public class XLSTable extends AbstractTable {
     }
 
     private void addDataRow(Function<Integer, String> cellValueGetter, Row row, Workbook wb, Sheet sheet) {
-        if (executeColumn != null && executeValue != null && headers.contains(executeColumn)) {
-            if (!executeValue.equalsIgnoreCase(cellValueGetter.apply(headers.indexOf(executeColumn)))) {
+        if ((executeColumn != null && executeValue != null && headers.contains(executeColumn))
+                && (!executeValue.equalsIgnoreCase(cellValueGetter.apply(headers.indexOf(executeColumn))))) {
                 return;
-            }
         }
 
         XLSChildTable childRow = null;
@@ -88,7 +87,7 @@ public class XLSTable extends AbstractTable {
             synchronized (dataMap) {
                 dataMap.put(header, cellValueGetter.apply(i));
             }
-            LOGGER.debug("{}: {}", header, dataMap.get(header));
+            LOGGER.debug("{}:  {}", header, dataMap.get(header));
         }
 
         // If row has foreign key than merge headers and data
@@ -96,7 +95,7 @@ public class XLSTable extends AbstractTable {
 
         LOGGER.debug("Merged row: ");
         for (String header : headers) {
-            LOGGER.debug(header + ": " + dataMap.get(header));
+            LOGGER.debug("{}: {}", header, dataMap.get(header));
         }
 
         dataRows.add(dataMap);
@@ -118,7 +117,7 @@ public class XLSTable extends AbstractTable {
                         dataMap.put(currentHeader, childRow.getDataRows().get(0).get(currentHeader));
                     }
                 }
-                LOGGER.debug(currentHeader + ": " + childRow.getDataRows().get(0).get(currentHeader));
+                LOGGER.debug("{}: {}", currentHeader, childRow.getDataRows().get(0).get(currentHeader));
             }
         }
     }

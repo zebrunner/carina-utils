@@ -61,21 +61,21 @@ public class XLSParser {
 
         List<String> locales = getLocales(sheet);
         if (!locales.contains(locale.getCountry())) {
-            throw new RuntimeException("Can't find locale '" + locale.getCountry() + "' in xls '" + xlsPath + "'!");
+            throw new RuntimeException(String.format("Can't find locale '%s' in xls '%s'!", locale.getCountry(), xlsPath));
         }
         int cellN = locales.indexOf(locale.getCountry()) + 1;
 
         List<String> locatorKeys = getLocatorKeys(sheet);
         if (!locatorKeys.contains(locatorKey)) {
-            throw new RuntimeException("Can't find locatorKey '" + locatorKey + "' in xls '" + xlsPath + "'!");
+            throw new RuntimeException(String.format("Can't find locatorKey '%s' in xls '%s'!", locatorKey, xlsPath));
         }
         int rowN = locatorKeys.indexOf(locatorKey) + 1;
 
         try {
             value = getCellValue(sheet.getRow(rowN).getCell(cellN));
         } catch (Exception e) {
-            throw new RuntimeException("Can't find value for locatorKey '" + locatorKey + "' with locale '" + locale.getCountry()
-                    + "' in xls '" + xlsPath + "'!");
+            throw new RuntimeException(
+                    String.format("Can't find value for locatorKey '%s' with locale '%s' in xls '%s'!", locatorKey, locale.getCountry(), xlsPath));
         }
 
         return value;
