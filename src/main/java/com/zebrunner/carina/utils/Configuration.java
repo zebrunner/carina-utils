@@ -163,7 +163,7 @@ public class Configuration {
         PAGE_OPENING_STRATEGY("page_opening_strategy"),
 
         /**
-         * Specifies whether to search for pages to initialize in dependencies.<br>
+         * Specifies whether to search for pages implementations in dependencies.<br>
          * Project: carina-webdriver
          */
         PAGE_RECURSIVE_REFLECTION("page_recursive_reflection"),
