@@ -79,14 +79,11 @@ public class XLSTable extends AbstractTable {
                 if (row != null && wb != null && sheet != null) {
                     childRow = XLSParser.parseCellLinks(row.getCell(i), wb, sheet);
                 } else {
-                    // TODO: 2019-03-20 implement logic to use fk prefix for spreadsheets
                     LOGGER.warn("FK_LINK_ prefix is not currently supported for spreadsheets");
                 }
             }
 
-            synchronized (dataMap) {
-                dataMap.put(header, cellValueGetter.apply(i));
-            }
+            dataMap.put(header, cellValueGetter.apply(i));
             LOGGER.debug("{}:  {}", header, dataMap.get(header));
         }
 
@@ -113,9 +110,7 @@ public class XLSTable extends AbstractTable {
                         this.headers.add(currentHeader);
 
                     // Merge data
-                    synchronized (dataMap) {
-                        dataMap.put(currentHeader, childRow.getDataRows().get(0).get(currentHeader));
-                    }
+                    dataMap.put(currentHeader, childRow.getDataRows().get(0).get(currentHeader));
                 }
                 LOGGER.debug("{}: {}", currentHeader, childRow.getDataRows().get(0).get(currentHeader));
             }

@@ -78,7 +78,7 @@ public class ParameterGenerator {
             matcher = GENERATEN_PATTERN.matcher(param);
             if (matcher.find()) {
                 int start = param.indexOf(':') + 1;
-                int end = param.indexOf("}");
+                int end = param.indexOf('}');
                 int size = Integer.parseInt(param.substring(start, end));
                 return StringUtils.replace(param, matcher.group(), StringGenerator.generateNumeric(size));
             }
@@ -86,7 +86,7 @@ public class ParameterGenerator {
             matcher = ENV_PATTERN.matcher(param);
             if (matcher.find()) {
                 int start = param.indexOf(':') + 1;
-                int end = param.indexOf("}");
+                int end = param.indexOf('}');
                 String key = param.substring(start, end);
                 return StringUtils.replace(param, matcher.group(), Configuration.getEnvArg(key));
             }
@@ -94,7 +94,7 @@ public class ParameterGenerator {
             matcher = TESTDATA_PATTERN.matcher(param);
             if (matcher.find()) {
                 int start = param.indexOf(':') + 1;
-                int end = param.indexOf("}");
+                int end = param.indexOf('}');
                 String key = param.substring(start, end);
                 return StringUtils.replace(param, matcher.group(), R.TESTDATA.get(key));
             }
