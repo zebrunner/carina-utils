@@ -17,7 +17,7 @@ package com.zebrunner.carina.utils;
 
 public interface IWebElement {
     String getText();
-    String getName();
+    String getLocalizedName();
     
     boolean isElementPresent(long timeout);
 }

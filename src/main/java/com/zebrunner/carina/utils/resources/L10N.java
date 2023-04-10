@@ -189,7 +189,7 @@ public class L10N {
         }
         
         String actualText = element.getText();
-        String key = element.getName();
+        String key = element.getLocalizedName();
 
         String expectedText = getText(key);
         boolean isValid = actualText.contains(expectedText) && !expectedText.isEmpty();
