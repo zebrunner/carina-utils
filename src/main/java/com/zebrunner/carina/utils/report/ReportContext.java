@@ -33,7 +33,6 @@ import java.net.URL;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystems;
-import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
@@ -546,12 +545,7 @@ public class ReportContext {
             if (reportFile.exists()) {
                 boolean isSuccessful = reportFile.delete();
                 if (!isSuccessful) {
-                    LOGGER.debug("Something went wrong when try to delete  '{}' report file", reportFile.getAbsolutePath());
-                }
-                try {
-                    Files.delete(reportFile.toPath());
-                } catch (IOException e) {
-                    System.out.println((e + "\n" + e.getMessage()));
+                    System.out.println(String.format("Something went wrong when try to delete  '%s' report file", reportFile.getAbsolutePath()));
                 }
             }
 
