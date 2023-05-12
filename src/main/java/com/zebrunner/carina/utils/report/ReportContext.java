@@ -687,17 +687,15 @@ public class ReportContext {
      * @return - URL to test log folder.
      */
     public static String getCucumberReportLink() {
-
-        String folder = SpecialKeywords.CUCUMBER_REPORT_FOLDER;
-        String subFolder = SpecialKeywords.CUCUMBER_REPORT_SUBFOLDER;
-        String fileName = SpecialKeywords.CUCUMBER_REPORT_FILE_NAME;
-
         String link = "";
         if (!Configuration.get(Configuration.Parameter.CI_BUILD_URL).isEmpty()) {
             String ciBuildUrl = Configuration.get(Configuration.Parameter.CI_BUILD_URL);
-            link = String.format("%s/%s", ciBuildUrl, "CucumberReport");
+            link = String.format("%s/%s", ciBuildUrl, SpecialKeywords.CUCUMBER_REPORT);
         } else {
-            link = String.format("file://%s/%s/%s/%s", getBaseDirAbsolutePath(), folder, subFolder, fileName);
+            link = String.format("file://%s/%s/%s/%s", getBaseDirAbsolutePath(), 
+                    SpecialKeywords.CUCUMBER_REPORT_FOLDER,
+                    SpecialKeywords.CUCUMBER_REPORT_SUBFOLDER, 
+                    SpecialKeywords.CUCUMBER_REPORT_FILE_NAME);
         }
 
         return link;
