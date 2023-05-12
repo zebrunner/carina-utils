@@ -97,7 +97,10 @@ public class Configuration {
 
         PROXY_SET_TO_SYSTEM("proxy_set_to_system"),
 
+        @Deprecated
         REPORT_URL("report_url"),
+        
+        CI_BUILD_URL("ci_build_url"),
 
         AUTO_SCREENSHOT("auto_screenshot"),
 
