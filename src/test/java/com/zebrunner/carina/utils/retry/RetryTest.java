@@ -15,11 +15,11 @@
  *******************************************************************************/
 package com.zebrunner.carina.utils.retry;
 
-import com.zebrunner.carina.utils.Configuration;
-import com.zebrunner.carina.utils.retry.RetryAnalyzer;
 import org.testng.Assert;
 import org.testng.Reporter;
 import org.testng.annotations.Test;
+
+import com.zebrunner.carina.utils.Configuration;
 
 public class RetryTest {
 

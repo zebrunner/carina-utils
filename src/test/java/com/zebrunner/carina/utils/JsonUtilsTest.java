@@ -15,11 +15,6 @@
  *******************************************************************************/
 package com.zebrunner.carina.utils;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.zebrunner.carina.utils.JsonUtils;
-import org.testng.Assert;
-import org.testng.annotations.Test;
-
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Type;
@@ -30,6 +25,11 @@ import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+
+import org.testng.Assert;
+import org.testng.annotations.Test;
+
+import com.fasterxml.jackson.databind.JsonNode;
 
 public class JsonUtilsTest {
 
