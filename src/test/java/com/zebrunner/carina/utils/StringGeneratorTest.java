@@ -15,12 +15,11 @@
  *******************************************************************************/
 package com.zebrunner.carina.utils;
 
-import com.zebrunner.carina.utils.StringGenerator;
-import org.testng.Assert;
-import org.testng.annotations.Test;
-
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import org.testng.Assert;
+import org.testng.annotations.Test;
 
 public class StringGeneratorTest {
 

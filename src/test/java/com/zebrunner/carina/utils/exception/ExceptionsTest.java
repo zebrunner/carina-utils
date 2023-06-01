@@ -15,14 +15,6 @@
  *******************************************************************************/
 package com.zebrunner.carina.utils.exception;
 
-import com.zebrunner.carina.utils.exception.DataLoadingException;
-import com.zebrunner.carina.utils.exception.DriverPoolException;
-import com.zebrunner.carina.utils.exception.InvalidArgsException;
-import com.zebrunner.carina.utils.exception.InvalidConfigurationException;
-import com.zebrunner.carina.utils.exception.NotSupportedOperationException;
-import com.zebrunner.carina.utils.exception.PlaceholderResolverException;
-import com.zebrunner.carina.utils.exception.RequiredCtorNotFoundException;
-import com.zebrunner.carina.utils.exception.TestCreationException;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 

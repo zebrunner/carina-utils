@@ -18,10 +18,13 @@ package com.zebrunner.carina.utils.db.mongo;
 import java.net.UnknownHostException;
 import java.util.regex.Pattern;
 
-import com.zebrunner.carina.utils.db.mongo.MongoConnector;
 import org.testng.annotations.Test;
 
-import com.mongodb.*;
+import com.mongodb.BasicDBObject;
+import com.mongodb.DB;
+import com.mongodb.DBCollection;
+import com.mongodb.DBCursor;
+import com.mongodb.MongoClient;
 
 /**
  * Tests for {@link MongoConnector}

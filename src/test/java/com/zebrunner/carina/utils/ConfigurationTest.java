@@ -19,10 +19,8 @@ import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.Test;
 
-import com.zebrunner.carina.utils.commons.SpecialKeywords;
-import com.zebrunner.carina.utils.Configuration;
 import com.zebrunner.carina.utils.Configuration.Parameter;
-import com.zebrunner.carina.utils.R;
+import com.zebrunner.carina.utils.commons.SpecialKeywords;
 
 /**
  * Tests for {@link Configuration}
