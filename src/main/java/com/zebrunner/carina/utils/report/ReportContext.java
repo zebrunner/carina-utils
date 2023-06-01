@@ -545,7 +545,7 @@ public class ReportContext {
             if (reportFile.exists()) {
                 boolean isSuccessful = reportFile.delete();
                 if (!isSuccessful) {
-                    System.out.println(String.format("Something went wrong when try to delete  '%s' report file", reportFile.getAbsolutePath()));
+                    System.out.println(String.format("Report file can't be deleted: %s", reportFile.getAbsolutePath()));
                 }
             }
 
