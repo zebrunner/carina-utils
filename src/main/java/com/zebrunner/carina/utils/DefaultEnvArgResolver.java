@@ -20,10 +20,13 @@ import com.zebrunner.carina.utils.exception.MissingParameterException;
 /**
  * DefaultEnvArgsResolver
  * 
+ * @deprecated use {@link com.zebrunner.carina.utils.config.Configuration} class instead
+ * 
  * @author Aliaksei_Khursevich
  *         <a href="mailto:hursevich@gmail.com">Aliaksei_Khursevich</a>
  *
  */
+@Deprecated(forRemoval = true, since = "1.0.5")
 public class DefaultEnvArgResolver implements IEnvArgResolver {
 
     @Override

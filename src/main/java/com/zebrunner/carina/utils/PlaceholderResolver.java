@@ -58,11 +58,6 @@ public final class PlaceholderResolver {
                     value = value.replace(placeholder, resolvedValue);
                 }
             }
-        } else {
-            if (!key.startsWith(SpecialKeywords.CAPABILITIES) && !key.endsWith(Configuration.Parameter.URL.getKey())) {
-                // replaced LOGGER.warn usage by simple console output otherwise stackoverflow might happen
-                System.out.println("WARN! Value not resolved by key: " + key);
-            }
         }
         return value;
     }

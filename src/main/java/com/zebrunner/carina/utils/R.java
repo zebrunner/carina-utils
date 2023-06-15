@@ -23,18 +23,13 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.testng.SkipException;
 
-import com.zebrunner.carina.crypto.Algorithm;
-import com.zebrunner.carina.crypto.CryptoTool;
-import com.zebrunner.carina.crypto.CryptoToolBuilder;
 import com.zebrunner.carina.utils.commons.SpecialKeywords;
+import com.zebrunner.carina.utils.encryptor.EncryptorUtils;
 import com.zebrunner.carina.utils.exception.InvalidConfigurationException;
 
 /**
@@ -59,6 +54,7 @@ public enum R {
 
     ZAFIRA("zafira.properties"),
 
+    @Deprecated(forRemoval = true, since = "1.0.5")
     AGENT("agent.properties");
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
@@ -66,12 +62,6 @@ public enum R {
     private static final String OVERRIDE_SIGN = "_";
 
     private final String resourceFile;
-
-    // store crypto pattern as pattern to increase performance
-    private volatile Pattern cryptoPattern = null;
-    private volatile String cryptoPatternAsString = null;
-    // store crypto tool to increase performance
-    private volatile CryptoTool cryptoTool = null;
 
     // temporary thread/test properties which is cleaned on afterTest phase for current thread. It can override any value from below R enum maps
     private static ThreadLocal<Properties> testProperties = new ThreadLocal<>();
@@ -121,17 +111,6 @@ public enum R {
                         properties.put(key, systemValue);
                     }
                 }
-
-                // init R.CONFIG with default values for required fields
-                if (resource.resourceFile.equals(CONFIG.resourceFile)) {
-                    if (!CONFIG.isInit(Configuration.Parameter.PROJECT_REPORT_DIRECTORY,properties)) {
-                        properties.put(Configuration.Parameter.PROJECT_REPORT_DIRECTORY.getKey(), "./reports");
-                    }
-                    if (!CONFIG.isInit(Configuration.Parameter.MAX_SCREENSHOOT_HISTORY,properties)) {
-                        properties.put(Configuration.Parameter.MAX_SCREENSHOOT_HISTORY.getKey(), "10");
-                    }
-                }
-
                 if (resource.resourceFile.contains(CONFIG.resourceFile)) {
                     // no need to read env variables using System.getenv()
                     final String prefix = SpecialKeywords.CAPABILITIES + ".";
@@ -196,11 +175,6 @@ public enum R {
                 }
             }
         return assembledProperties;
-    }
-
-    private boolean isInit(Configuration.Parameter parameter, Properties properties){
-        String value = (String) properties.get(parameter.getKey());
-        return !(value == null || value.length() == 0 || value.equals("NULL"));
     }
 
     R(String resourceKey) {
@@ -306,46 +280,7 @@ public enum R {
      * @return config value
      */
     public String getDecrypted(String key) {
-        String originalValue = get(key);
-
-        if (this.cryptoPattern == null) {
-            synchronized (this) {
-                if (this.cryptoPattern == null) {
-                    this.cryptoPatternAsString = Configuration.get(Configuration.Parameter.CRYPTO_PATTERN);
-                    this.cryptoPattern = Pattern.compile(this.cryptoPatternAsString);
-                }
-            }
-        }
-        Matcher cryptoMatcher = this.cryptoPattern.matcher(originalValue);
-
-        if (cryptoMatcher.find()) {
-            if (this.cryptoTool == null) {
-                synchronized (this) {
-                    if (this.cryptoTool == null) {
-                        String cryptoKey = Configuration.get(Configuration.Parameter.CRYPTO_KEY_VALUE);
-                        if (cryptoKey.isEmpty()) {
-                            throw new SkipException("Encrypted data detected, but the crypto key is not found!");
-                        }
-
-                        try {
-                            this.cryptoTool = CryptoToolBuilder.builder()
-                                    .chooseAlgorithm(Algorithm.find(Configuration.get(Configuration.Parameter.CRYPTO_ALGORITHM)))
-                                    .setKey(cryptoKey)
-                                    .build();
-                        } catch (Exception e) {
-                            throw new SkipException("Cannot create instance of crypto tool.", e);
-                        }
-                    }
-                }
-            }
-
-            try {
-                return this.cryptoTool.decrypt(originalValue, this.cryptoPatternAsString);
-            } catch (Exception e) {
-                throw new SkipException(String.format("Error during decrypting '%s'. Please check error: ", originalValue), e);
-            }
-        }
-        return originalValue;
+        return EncryptorUtils.decrypt(get(key));
     }
 
     /**
@@ -434,30 +369,6 @@ public enum R {
         }
         
         return testProperties.get();
-    }
-
-    private String decrypt(String content, String pattern) {
-        Matcher cryptoMatcher = Pattern.compile(pattern)
-                .matcher(content);
-
-        if (cryptoMatcher.find()) {
-            try {
-                String cryptoKey = Configuration.get(Configuration.Parameter.CRYPTO_KEY_VALUE);
-                if (cryptoKey.isEmpty()) {
-                    throw new SkipException("Encrypted data detected, but the crypto key is not found!");
-                }
-
-                CryptoTool cryptoTool = CryptoToolBuilder.builder()
-                        .chooseAlgorithm(Algorithm.find(Configuration.get(Configuration.Parameter.CRYPTO_ALGORITHM)))
-                        .setKey(cryptoKey)
-                        .build();
-
-                return cryptoTool.decrypt(content, pattern);
-            } catch (Exception e) {
-                LOGGER.error("Error during decrypting '" + content + "'. Please check error: ", e);
-            }
-        }
-        return content;
     }
 
 }

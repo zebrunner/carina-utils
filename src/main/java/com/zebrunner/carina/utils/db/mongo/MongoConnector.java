@@ -20,22 +20,23 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.zebrunner.carina.utils.R;
-import com.zebrunner.carina.utils.exception.InvalidConfigurationException;
 import org.apache.commons.lang3.StringUtils;
 
 import com.mongodb.MongoClient;
 import com.mongodb.MongoCredential;
 import com.mongodb.ServerAddress;
+import com.zebrunner.carina.utils.R;
 import com.zebrunner.carina.utils.commons.SpecialKeywords;
+import com.zebrunner.carina.utils.exception.InvalidConfigurationException;
 
 /**
  * MongoConnector - factory for MongoDB client creation.
  *
  * @author Aliaksei_Khursevich
  *         <a href="mailto:hursevich@gmail.com">Aliaksei_Khursevich</a>
- *
+ * @deprecated not used
  */
+@Deprecated(forRemoval = true, since = "1.0.5")
 public final class MongoConnector {
     private static final Map<String, MongoClient> clients = new HashMap<>();
 

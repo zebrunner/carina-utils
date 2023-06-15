@@ -18,8 +18,11 @@ package com.zebrunner.carina.utils.exception;
 /*
  * Exception that may be thrown when creating new test threads for performance testing.
  * 
+ * @deprecated not used
+ * 
  * @author Alex Khursevich
  */
+@Deprecated(forRemoval = true, since = "1.0.5")
 public class TestCreationException extends Exception {
     private static final long serialVersionUID = 1204359727358878609L;
 

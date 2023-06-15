@@ -34,9 +34,11 @@ import com.zebrunner.carina.utils.exception.MissingParameterException;
 /**
  * Configuration utility.
  * 
+ * @deprecated use {@link com.zebrunner.carina.utils.config.Configuration} class instead
  * @author Aliaksei_Khursevich
  *         hursevich@gmail.com
  */
+@Deprecated(forRemoval = true, since = "1.0.5")
 public class Configuration {
     private static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
     private static IEnvArgResolver envArgResolver = new DefaultEnvArgResolver();
@@ -58,21 +60,21 @@ public class Configuration {
         DRIVER_EVENT_LISTENERS("driver_event_listeners"),
 
         MAX_DRIVER_COUNT("max_driver_count"),
-        
+
         FORCIBLY_DISABLE_DRIVER_QUIT("forcibly_disable_driver_quit"),
 
         CUSTOM_CAPABILITIES("custom_capabilities"),
-        
+
         CHROME_ARGS("chrome_args"),
-        
+
         CHROME_EXPERIMENTAL_OPTS("chrome_experimental_opts"),
-        
+
         CHROME_MOBILE_EMULATION_OPTS("chrome_mobile_emulation_opts"),
-        
+
         CHROME_CLOSURE("chrome_closure"),
-        
+
         FIREFOX_ARGS("firefox_args"),
-        
+
         FIREFOX_PREFERENCES("firefox_preferences"),
 
         HEADLESS("headless"),
@@ -84,7 +86,7 @@ public class Configuration {
         PROXY_PORT("proxy_port"),
 
         PROXY_PROTOCOLS("proxy_protocols"),
-        
+
         NO_PROXY("no_proxy"),
 
         BROWSERUP_PROXY("browserup_proxy"),
@@ -99,7 +101,7 @@ public class Configuration {
 
         @Deprecated
         REPORT_URL("report_url"),
-        
+
         CI_BUILD_URL("ci_build_url"),
 
         AUTO_SCREENSHOT("auto_screenshot"),
@@ -160,9 +162,9 @@ public class Configuration {
         SUITE_NAME("suite_name"),
 
         TEST_NAMING_PATTERN("test_naming_pattern"),
-        
+
         ELEMENT_LOADING_STRATEGY("element_loading_strategy"),
-        
+
         PAGE_OPENING_STRATEGY("page_opening_strategy"),
 
         /**
@@ -173,7 +175,7 @@ public class Configuration {
 
         // Amazon
         S3_BUCKET_NAME("s3_bucket_name"),
-        
+
         S3_REGION("s3_region"),
 
         ACCESS_KEY_ID("access_key_id"),
@@ -216,18 +218,18 @@ public class Configuration {
 
         // Test Execution Filter rules
         TEST_RUN_RULES("test_run_rules"),
-        
+
         // Test Rail
         TESTRAIL_ENABLED("testrail_enabled"),
-        
+
         INCLUDE_ALL("include_all"),
-        
+
         MILESTONE("milestone"),
-        
+
         RUN_NAME("run_name"),
-        
+
         ASSIGNEE("assignee"),
-        
+
         // sha1
         GIT_HASH("git_hash"),
 
