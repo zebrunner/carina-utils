@@ -37,7 +37,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -64,12 +63,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.Assert;
 
-import com.zebrunner.carina.utils.Configuration;
 import com.zebrunner.carina.utils.FileManager;
 import com.zebrunner.carina.utils.R;
 import com.zebrunner.carina.utils.ZipManager;
 import com.zebrunner.carina.utils.common.CommonUtils;
 import com.zebrunner.carina.utils.commons.SpecialKeywords;
+import com.zebrunner.carina.utils.config.Configuration;
 
 /*
  * Be careful with LOGGER usage here because potentially it could do recursive call together with ThreadLogAppender functionality
@@ -113,10 +112,9 @@ public class ReportContext {
      */
     public static File getBaseDir() {
         if (baseDirectory == null) {
-            removeOldReports();
             File projectRoot = new File(String.format(FOLDERS_FORMAT, URLDecoder.decode(System.getProperty(ROOT_DIR_SYSTEM_PROPERTY),
                             StandardCharsets.UTF_8),
-                    Configuration.get(Configuration.Parameter.PROJECT_REPORT_DIRECTORY)));
+                    Configuration.getRequired(Configuration.Parameter.PROJECT_REPORT_DIRECTORY)));
             if (!projectRoot.exists()) {
                 boolean isCreated = projectRoot.mkdirs();
                 if (!isCreated) {
@@ -125,7 +123,7 @@ public class ReportContext {
             }
             rootID = System.currentTimeMillis();
             String directory = String.format("%s/%s/%d", URLDecoder.decode(System.getProperty(ROOT_DIR_SYSTEM_PROPERTY), StandardCharsets.UTF_8),
-                    Configuration.get(Configuration.Parameter.PROJECT_REPORT_DIRECTORY), rootID);
+                    Configuration.getRequired(Configuration.Parameter.PROJECT_REPORT_DIRECTORY), rootID);
             File baseDirectoryTmp = new File(directory);
             boolean isCreated = baseDirectoryTmp.mkdir();
             if (!isCreated) {
@@ -224,12 +222,17 @@ public class ReportContext {
         return testDir;
     }
 
+    /**
+     * @deprecated use the same method from SessionContext
+     */
+    @Deprecated(forRemoval = true, since = "1.0.5")
     public static synchronized File getArtifactsFolder() {
         File dir = null;
         try {
             // artifacts directory should use canonical path otherwise auto download feature is broken in browsers
-            if (!Configuration.get(Configuration.Parameter.CUSTOM_ARTIFACTS_FOLDER).isEmpty()) {
-                dir = new File(Configuration.get(Configuration.Parameter.CUSTOM_ARTIFACTS_FOLDER)).getCanonicalFile();
+            if (Configuration.get(com.zebrunner.carina.utils.Configuration.Parameter.CUSTOM_ARTIFACTS_FOLDER.getKey()).isPresent()) {
+                dir = new File(Configuration.getRequired(com.zebrunner.carina.utils.Configuration.Parameter.CUSTOM_ARTIFACTS_FOLDER.getKey()))
+                        .getCanonicalFile();
             } else {
                 dir = new File(getTestDir().getCanonicalPath() + File.separator + ARTIFACTS_FOLDER);
             }
@@ -257,9 +260,11 @@ public class ReportContext {
     /**
      * Returns consolidated list of auto downloaded filenames from local artifacts folder or from remote Selenium session
      * 
+     * @deprecated use the same method from SessionContext
      * @param driver WebDriver
      * @return list of file and directories names
      */
+    @Deprecated(forRemoval = true, since = "1.0.5")
     public static List<String> listArtifacts(WebDriver driver) {
         List<String> artifactNames = Arrays.stream(Objects.requireNonNull(getArtifactsFolder().listFiles()))
                 .map(File::getName)
@@ -310,10 +315,12 @@ public class ReportContext {
     /**
      * Get artifacts from auto download folder of local or remove driver session by pattern
      * 
+     * @deprecated use the same method from SessionContext
      * @param driver WebDriver
      * @param pattern String - regex for artifacts
      * @return list of artifact files
      */
+    @Deprecated(forRemoval = true, since = "1.0.5")
     public static List<File> getArtifacts(WebDriver driver, String pattern) {
         List<String> filteredFilesNames = listArtifacts(driver)
                 .stream()
@@ -334,10 +341,12 @@ public class ReportContext {
     /**
      * Get artifact from auto download folder of local or remove driver session by name
      * 
+     * @deprecated use the same method from SessionContext
      * @param driver WebDriver
      * @param name String - filename with extension
      * @return artifact File
      */
+    @Deprecated(forRemoval = true, since = "1.0.5")
     public static File getArtifact(WebDriver driver, String name) {
         File file = new File(getArtifactsFolder() + File.separator + name);
         if (file.exists()) {
@@ -384,6 +393,7 @@ public class ReportContext {
      * @param password String
      * @return boolean
      */
+    @Deprecated(forRemoval = true, since = "1.0.5")
     private static boolean checkArtifactUsingHttp(String url, String username, String password) {
         try {
             HttpURLConnection.setFollowRedirects(false);
@@ -412,6 +422,7 @@ public class ReportContext {
      * @param position int
      * @return String
      */
+    @Deprecated(forRemoval = true, since = "1.0.5")
     private static String getField(String url, int position) {
         Pattern pattern = Pattern.compile(".*:\\/\\/(.*):(.*)@");
         Matcher matcher = pattern.matcher(url);
@@ -423,9 +434,11 @@ public class ReportContext {
     /**
      * Generate file in artifacts location and register in Zebrunner Reporting
      * 
+     * @deprecated use the same method from SessionContext
      * @param name String
      * @param source InputStream
      */
+    @Deprecated(forRemoval = true, since = "1.0.5")
     public static void saveArtifact(String name, InputStream source) throws IOException {
         File artifact = new File(String.format(FOLDERS_FORMAT, getArtifactsFolder(), name));
         boolean isSuccessful = artifact.createNewFile();
@@ -444,9 +457,10 @@ public class ReportContext {
     /**
      * Copy file into artifacts location and register in Zebrunner Reporting
      * 
+     * @deprecated use the same method from SessionContext
      * @param source File
      */
-
+    @Deprecated(forRemoval = true, since = "1.0.5")
     public static void saveArtifact(File source) throws IOException {
         File artifact = new File(String.format(FOLDERS_FORMAT, getArtifactsFolder(), source.getName()));
         boolean isSuccessful = artifact.createNewFile();
@@ -469,8 +483,10 @@ public class ReportContext {
      * @param name String
      * @return String
      */
+    @Deprecated(forRemoval = true, since = "1.0.5")
     private static String getUrl(WebDriver driver, String name) {
-        String seleniumHost = Configuration.getSeleniumUrl().replace("wd/hub", "download/");
+        String seleniumHost = Configuration.getRequired(com.zebrunner.carina.utils.Configuration.Parameter.SELENIUM_URL.getKey()).replace("wd/hub",
+                "download/");
         RemoteWebDriver drv = driver instanceof Decorated ? (RemoteWebDriver) (((Decorated<WebDriver>) driver).getOriginal())
                 : (RemoteWebDriver) driver;
         String sessionId = drv.getSessionId().toString();
@@ -532,55 +548,14 @@ public class ReportContext {
     }
 
     /**
-     * Removes emailable html report and oldest screenshots directories according to history size defined in config.
+     * @deprecated use the same method from ReportConfiguration
      */
-    private static void removeOldReports() {
-        File baseDir = new File(String.format(FOLDERS_FORMAT, System.getProperty(ROOT_DIR_SYSTEM_PROPERTY),
-                Configuration.get(Configuration.Parameter.PROJECT_REPORT_DIRECTORY)));
-
-        if (baseDir.exists()) {
-            // remove old emailable report
-            File reportFile = new File(String.format("%s/%s/%s", System.getProperty(ROOT_DIR_SYSTEM_PROPERTY),
-                    Configuration.get(Configuration.Parameter.PROJECT_REPORT_DIRECTORY), SpecialKeywords.HTML_REPORT));
-            if (reportFile.exists()) {
-                boolean isSuccessful = reportFile.delete();
-                if (!isSuccessful) {
-                    System.out.println(String.format("Report file can't be deleted: %s", reportFile.getAbsolutePath()));
-                }
-            }
-
-            List<File> files = FileManager.getFilesInDir(baseDir);
-            List<File> screenshotFolders = new ArrayList<>();
-            for (File file : files) {
-                if (file.isDirectory() && !file.getName().startsWith(".")) {
-                    screenshotFolders.add(file);
-                }
-            }
-
-            int maxHistory = Configuration.getInt(Configuration.Parameter.MAX_SCREENSHOOT_HISTORY);
-
-            if (maxHistory > 0 && screenshotFolders.size() + 1 > maxHistory) {
-                Comparator<File> comp = (file1, file2) -> file2.getName().compareTo(file1.getName());
-                screenshotFolders.sort(comp);
-                for (int i = maxHistory - 1; i < screenshotFolders.size(); i++) {
-                    if (screenshotFolders.get(i).getName().equals("gallery-lib")) {
-                        continue;
-                    }
-                    try {
-                        FileUtils.deleteDirectory(screenshotFolders.get(i));
-                    } catch (IOException e) {
-                        System.out.println((e + "\n" + e.getMessage()));
-                    }
-                }
-            }
-        }
-    }
-
+    @Deprecated(forRemoval = true, since = "1.0.5")
     public static void generateHtmlReport(String content) {
         String emailableReport = SpecialKeywords.HTML_REPORT;
 
         File reportFile = new File(String.format("%s/%s/%s", System.getProperty(ROOT_DIR_SYSTEM_PROPERTY),
-                Configuration.get(Configuration.Parameter.PROJECT_REPORT_DIRECTORY), emailableReport));
+                Configuration.getRequired(Configuration.Parameter.PROJECT_REPORT_DIRECTORY), emailableReport));
         File reportFileToBaseDir = new File(String.format(FOLDERS_FORMAT, getBaseDir(), emailableReport));
 
         try (FileWriter reportFileWriter = new FileWriter(reportFile.getAbsoluteFile());
@@ -599,6 +574,7 @@ public class ReportContext {
         }
     }
 
+    @Deprecated(forRemoval = true, since = "1.0.5")
     private static void createNewFileIfNotExists(File file) throws IOException {
         if (!file.exists()) {
             boolean isCreated = file.createNewFile();
@@ -610,13 +586,16 @@ public class ReportContext {
 
     /**
      * Returns URL for test artifacts folder.
-     * 
+     *
+     * @deprecated use the same method from ReportConfiguration
      * @return - URL for test screenshot folder.
      */
+    @Deprecated(forRemoval = true, since = "1.0.5")
     public static String getTestArtifactsLink() {
         String link = "";
-        if (!Configuration.get(Configuration.Parameter.REPORT_URL).isEmpty()) {
-            link = String.format("%s/%d/artifacts", Configuration.get(Configuration.Parameter.REPORT_URL), rootID);
+        if (Configuration.get(com.zebrunner.carina.utils.Configuration.Parameter.REPORT_URL.getKey()).isPresent()) {
+            link = String.format("%s/%d/artifacts", Configuration.getRequired(com.zebrunner.carina.utils.Configuration.Parameter.REPORT_URL.getKey()),
+                    rootID);
         } else {
             link = String.format("file://%s/artifacts", getBaseDirAbsolutePath());
         }
@@ -628,8 +607,10 @@ public class ReportContext {
     /**
      * Returns URL for test screenshot folder.
      * 
+     * @deprecated use the same method from ReportConfiguration
      * @return - URL for test screenshot folder.
      */
+    @Deprecated(forRemoval = true, since = "1.0.5")
     public static String getTestScreenshotsLink() {
         String link = "";
         try {
@@ -643,8 +624,9 @@ public class ReportContext {
         
         String test = testDirectory.get().getName().replaceAll(SPACE_PATTERN, "_");
         
-        if (!Configuration.get(Configuration.Parameter.REPORT_URL).isEmpty()) {
-            link = String.format("%s/%d/%s/report.html", Configuration.get(Configuration.Parameter.REPORT_URL), rootID, test);
+        if (Configuration.get(com.zebrunner.carina.utils.Configuration.Parameter.REPORT_URL.getKey()).isPresent()) {
+            link = String.format("%s/%d/%s/report.html",
+                    Configuration.getRequired(com.zebrunner.carina.utils.Configuration.Parameter.REPORT_URL.getKey()), rootID, test);
         } else {
             link = String.format("file://%s/%s/report.html", getBaseDirAbsolutePath(), test);
         }
@@ -655,8 +637,11 @@ public class ReportContext {
 
     /**
      * Returns URL for test log.
+     * 
+     * @deprecated use the same method from ReportConfiguration
      * @return - URL to test log folder.
      */
+    @Deprecated(forRemoval = true, since = "1.0.5")
     public static String getTestLogLink() {
         String link = "";
         File testLogFile = new File(ReportContext.getTestDir() + "/" + "test.log");
@@ -666,8 +651,9 @@ public class ReportContext {
         }
 
         String test = testDirectory.get().getName().replaceAll(SPACE_PATTERN, "_");
-        if (!Configuration.get(Configuration.Parameter.REPORT_URL).isEmpty()) {
-            link = String.format("%s/%d/%s/test.log", Configuration.get(Configuration.Parameter.REPORT_URL), rootID, test);
+        if (Configuration.get(com.zebrunner.carina.utils.Configuration.Parameter.REPORT_URL.getKey()).isPresent()) {
+            link = String.format("%s/%d/%s/test.log",
+                    Configuration.getRequired(com.zebrunner.carina.utils.Configuration.Parameter.REPORT_URL.getKey()), rootID, test);
         } else {
             link = String.format("file://%s/%s/test.log", getBaseDirAbsolutePath(), test);
         }
@@ -678,8 +664,10 @@ public class ReportContext {
     /**
      * Returns URL for cucumber report.
      * 
+     * @deprecated use the same method from ReportConfiguration
      * @return - URL to test log folder.
      */
+    @Deprecated(forRemoval = true, since = "1.0.5")
     public static String getCucumberReportLink() {
 
         String folder = SpecialKeywords.CUCUMBER_REPORT_FOLDER;
@@ -687,8 +675,8 @@ public class ReportContext {
         String fileName = SpecialKeywords.CUCUMBER_REPORT_FILE_NAME;
 
         String link = "";
-        if (!Configuration.get(Configuration.Parameter.CI_BUILD_URL).isEmpty()) {
-            String ciBuildUrl = Configuration.get(Configuration.Parameter.CI_BUILD_URL);
+        if (Configuration.get(com.zebrunner.carina.utils.Configuration.Parameter.CI_BUILD_URL.getKey()).isPresent()) {
+            String ciBuildUrl = Configuration.getRequired(com.zebrunner.carina.utils.Configuration.Parameter.CI_BUILD_URL.getKey());
             link = String.format("%s/%s", ciBuildUrl, "CucumberReport");
         } else {
             link = String.format("file://%s/%s/%s/%s", getBaseDirAbsolutePath(), folder, subFolder, fileName);
@@ -701,14 +689,17 @@ public class ReportContext {
      * Saves screenshot.
      * 
      * @param screenshot - {@link BufferedImage} file to save
-     * 
+     *
+     * @deprecated old logic. Use Screenshot class
      * @return - screenshot name.
      */
+    @Deprecated(forRemoval = true, since = "1.0.5")
     public static String saveScreenshot(BufferedImage screenshot) {
         long now = System.currentTimeMillis();
 
         executor.execute(new ImageSaverTask(screenshot, String.format("%s/%d.png", getTestDir().getAbsolutePath(), now),
-                Configuration.getInt(Configuration.Parameter.BIG_SCREEN_WIDTH), Configuration.getInt(Configuration.Parameter.BIG_SCREEN_HEIGHT)));
+                Configuration.getRequired(com.zebrunner.carina.utils.Configuration.Parameter.BIG_SCREEN_WIDTH.getKey(), Integer.class),
+                Configuration.getRequired(com.zebrunner.carina.utils.Configuration.Parameter.BIG_SCREEN_HEIGHT.getKey(), Integer.class)));
 
         return String.format("%d.png", now);
     }
@@ -716,6 +707,7 @@ public class ReportContext {
     /**
      * Asynchronous image saver task.
      */
+    @Deprecated(forRemoval = true, since = "1.0.5")
     private static class ImageSaverTask implements Runnable {
         private BufferedImage image;
         private String path;
@@ -751,7 +743,8 @@ public class ReportContext {
 
     private static void copyGalleryLib() {
         String filesSeparator = FileSystems.getDefault().getSeparator();
-        File reportsRootDir = new File(System.getProperty(ROOT_DIR_SYSTEM_PROPERTY) + "/" + Configuration.get(Configuration.Parameter.PROJECT_REPORT_DIRECTORY));
+        File reportsRootDir = new File(
+                System.getProperty(ROOT_DIR_SYSTEM_PROPERTY) + "/" + Configuration.getRequired(Configuration.Parameter.PROJECT_REPORT_DIRECTORY));
         if (!new File(reportsRootDir.getAbsolutePath() + "/gallery-lib").exists()) {
             try {
                 InputStream is = ClassLoader.getSystemClassLoader().getResourceAsStream(GALLERY_ZIP);
@@ -773,6 +766,10 @@ public class ReportContext {
         }
     }
 
+    /**
+     * @deprecated use the same method from ReportConfiguration
+     */
+    @Deprecated(forRemoval = true, since = "1.0.5")
     public static void generateTestReport() {
         File testDir = testDirectory.get();
         try {
@@ -816,8 +813,9 @@ public class ReportContext {
      *
      * @param screenId screenId id
      * @param msg message
-     * 
+     * @deprecated old logic. Use Screenshot class
      */
+    @Deprecated(forRemoval = true, since = "1.0.5")
     public static void addScreenshotComment(String screenId, String msg) {
         if (!StringUtils.isEmpty(screenId)) {
             screenSteps.put(screenId, msg);
@@ -829,8 +827,10 @@ public class ReportContext {
      * 
      * @param screenId Screen Id
      * 
+     * @deprecated old logic. Use Screenshot class
      * @return screenshot comment
      */
+    @Deprecated(forRemoval = true, since = "1.0.5")
     public static String getScreenshotComment(String screenId) {
         String comment = "";
         if (screenSteps.containsKey(screenId))

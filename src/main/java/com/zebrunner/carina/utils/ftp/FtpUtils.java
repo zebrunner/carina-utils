@@ -29,6 +29,10 @@ import org.apache.commons.net.ftp.FTPReply;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * @deprecated not used
+ */
+@Deprecated(forRemoval = true, since = "1.0.5")
 public final class FtpUtils {
     private static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 	private static final int DEFAULT_PORT = 21;

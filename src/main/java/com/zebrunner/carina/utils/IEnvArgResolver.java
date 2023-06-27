@@ -15,6 +15,10 @@
  *******************************************************************************/
 package com.zebrunner.carina.utils;
 
+/**
+ * @deprecated use {@link com.zebrunner.carina.utils.config.Configuration} class instead
+ */
+@Deprecated(forRemoval = true, since = "1.0.5")
 public interface IEnvArgResolver {
     String get(String env, String key);
 }
