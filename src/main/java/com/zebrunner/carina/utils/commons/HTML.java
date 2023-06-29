@@ -15,10 +15,10 @@
  *******************************************************************************/
 package com.zebrunner.carina.utils.commons;
 
-/*
+/**
  * HTML - base html tags and attributes
  * 
- * @author: Aliakse_Khursevich (hursevich@gmail.com)
+ * @author Aliakse_Khursevich (hursevich@gmail.com)
  * 
  * @deprecated not used
  */

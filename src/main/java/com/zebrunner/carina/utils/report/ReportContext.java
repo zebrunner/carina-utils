@@ -127,7 +127,7 @@ public class ReportContext {
             File baseDirectoryTmp = new File(directory);
             boolean isCreated = baseDirectoryTmp.mkdir();
             if (!isCreated) {
-                throw new RuntimeException("Folder not created: " + baseDirectory.getAbsolutePath());
+                throw new RuntimeException("Folder not created: " + directory);
             }
 
             baseDirectory = baseDirectoryTmp;
@@ -387,7 +387,8 @@ public class ReportContext {
 
     /**
      * check if artifact exists using http
-     * 
+     *
+     * @deprecated deprecated
      * @param url String
      * @param username String
      * @param password String
@@ -418,6 +419,7 @@ public class ReportContext {
     /**
      * get username or password from url
      * 
+     * @deprecated deprecated
      * @param url String
      * @param position int
      * @return String
@@ -479,6 +481,7 @@ public class ReportContext {
     /**
      * generate url for artifact by name
      * 
+     * @deprecated deprecated
      * @param driver WebDriver
      * @param name String
      * @return String
@@ -574,6 +577,9 @@ public class ReportContext {
         }
     }
 
+    /**
+     * @deprecated deprecated
+     */
     @Deprecated(forRemoval = true, since = "1.0.5")
     private static void createNewFileIfNotExists(File file) throws IOException {
         if (!file.exists()) {
@@ -706,6 +712,8 @@ public class ReportContext {
 
     /**
      * Asynchronous image saver task.
+     *
+     * @deprecated deprecated
      */
     @Deprecated(forRemoval = true, since = "1.0.5")
     private static class ImageSaverTask implements Runnable {

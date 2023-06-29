@@ -15,7 +15,7 @@
  *******************************************************************************/
 package com.zebrunner.carina.utils.exception;
 
-/*
+/**
  * Exception may be thrown when exception in data loading occurred.
  * 
  * @deprecated not used

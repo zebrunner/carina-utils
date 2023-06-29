@@ -11,6 +11,7 @@ import com.zebrunner.carina.utils.encryptor.EncryptorUtils;
 import com.zebrunner.carina.utils.exception.InvalidConfigurationException;
 
 public class Configuration {
+    private static final String REQUIRE_VALUE_ERROR_MESSAGE = "Getting the value of parameter '%s' as required failed: the value is missing.";
 
     public enum Parameter implements IParameter {
 
@@ -159,7 +160,7 @@ public class Configuration {
     public static String getRequired(IParameter parameter, ConfigurationOption... options) {
         return get(parameter, options)
                 .orElseThrow(() -> new InvalidConfigurationException(
-                        String.format("Getting the value of parameter '%s' as required failed: the value is missing.", parameter.getKey())));
+                        String.format(REQUIRE_VALUE_ERROR_MESSAGE, parameter.getKey())));
     }
 
     public static String getRequired(String parameter) {
@@ -169,7 +170,7 @@ public class Configuration {
     public static String getRequired(String parameter, ConfigurationOption... options) {
         return get(parameter, options)
                 .orElseThrow(() -> new InvalidConfigurationException(
-                        String.format("Getting the value of parameter '%s' as required failed: the value is missing.", parameter)));
+                        String.format(REQUIRE_VALUE_ERROR_MESSAGE, parameter)));
     }
 
     public static <T> T getRequired(IParameter parameter, Class<T> clazz) {
@@ -179,7 +180,7 @@ public class Configuration {
     public static <T> T getRequired(IParameter parameter, Class<T> clazz, ConfigurationOption... options) {
         return get(parameter.getKey(), clazz, options)
                 .orElseThrow(() -> new InvalidConfigurationException(
-                        String.format("Getting the value of parameter '%s' as required failed: the value is missing.", parameter)));
+                        String.format(REQUIRE_VALUE_ERROR_MESSAGE, parameter)));
     }
 
     public static <T> T getRequired(String parameter, Class<T> clazz) {
@@ -189,7 +190,7 @@ public class Configuration {
     public static <T> T getRequired(String parameter, Class<T> clazz, ConfigurationOption... options) {
         return get(parameter, clazz, options)
                 .orElseThrow(() -> new InvalidConfigurationException(
-                        String.format("Getting the value of parameter '%s' as required failed: the value is missing.", parameter)));
+                        String.format(REQUIRE_VALUE_ERROR_MESSAGE, parameter)));
     }
 
     protected Optional<String> asString(IParameter[] parameters) {
