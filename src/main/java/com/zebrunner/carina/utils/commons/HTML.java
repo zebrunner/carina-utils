@@ -15,12 +15,14 @@
  *******************************************************************************/
 package com.zebrunner.carina.utils.commons;
 
-/*
+/**
  * HTML - base html tags and attributes
  * 
- * @author: Aliakse_Khursevich (hursevich@gmail.com)
+ * @author Aliakse_Khursevich (hursevich@gmail.com)
  * 
+ * @deprecated not used
  */
+@Deprecated(forRemoval = true, since = "1.0.5")
 public final class HTML {
 
     private HTML() {

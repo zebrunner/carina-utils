@@ -15,11 +15,14 @@
  *******************************************************************************/
 package com.zebrunner.carina.utils.exception;
 
-/*
+/**
  * Exception may be thrown when exception in data loading occurred.
+ * 
+ * @deprecated not used
  * 
  * @author Alex Khursevich
  */
+@Deprecated(forRemoval = true, since = "1.0.5")
 public class DataLoadingException extends RuntimeException {
     private static final long serialVersionUID = -6264855148555485530L;
 
