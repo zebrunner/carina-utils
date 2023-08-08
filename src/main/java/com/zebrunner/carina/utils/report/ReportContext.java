@@ -61,7 +61,6 @@ import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.support.decorators.Decorated;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.testng.Assert;
 
 import com.zebrunner.carina.utils.FileManager;
 import com.zebrunner.carina.utils.R;
@@ -372,7 +371,7 @@ public class ReportContext {
                 LOGGER.error("Artifact: {} wasn't downloaded to {}",url, path, e);
             }
         } else {
-            Assert.fail("Unable to find artifact: " + name);
+            throw new RuntimeException("Unable to find artifact: " + name);
         }
 
         // publish as test artifact to Zebrunner Reporting
