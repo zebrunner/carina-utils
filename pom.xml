@@ -150,12 +150,11 @@
         </dependency>
 
         <!-- Test utilities -->
-        <!-- change scope to 'test' -->
         <dependency>
             <groupId>org.testng</groupId>
             <artifactId>testng</artifactId>
             <version>${testng.version}</version>
-            <scope>compile</scope>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 
