@@ -31,7 +31,7 @@ public final class EncryptorUtils {
         validatePattern(p);
         return p;
     }).orElseThrow(() -> new InvalidConfigurationException("'crypto_pattern' parameter could not be null.")));
-    private static final Pattern ENCRYPT_PATTERN = Pattern.compile("(?<data>.+?)");
+    private static final Pattern ENCRYPT_PATTERN = Pattern.compile("^(?<data>.+?)$");
     private static final String ENCRYPT_WRAPPER = Configuration.getRequired(EncryptorConfiguration.Parameter.CRYPTO_WRAPPER);
     private static final String DECRYPT_WRAPPER = "%s";
     private static final Algorithm ALGORITHM = Algorithm.find(Configuration.getRequired(EncryptorConfiguration.Parameter.CRYPTO_ALGORITHM));
