@@ -52,10 +52,7 @@ public enum R {
 
     DATABASE("database.properties"),
 
-    ZAFIRA("zafira.properties"),
-
-    @Deprecated(forRemoval = true, since = "1.0.5")
-    AGENT("agent.properties");
+    ZAFIRA("zafira.properties");
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
@@ -68,9 +65,9 @@ public enum R {
     private static final ThreadLocal<Map<String, String>> PROPERTY_OVERWRITE_NOTIFICATIONS = new ThreadLocal<>();
 
     private static Map<String, Properties> defaultPropertiesHolder = new HashMap<>();
-    // permanent global configuration map 
+    // permanent global configuration map
     private static Map<String, Properties> propertiesHolder = new HashMap<>();
-    
+
     // init global configuration map statically
     static {
         reinit();
@@ -88,7 +85,7 @@ public enum R {
                 }
 
                 URL overrideResource;
-                StringBuilder resourceNameBuilder = new StringBuilder(OVERRIDE_SIGN  + resource.resourceFile);
+                StringBuilder resourceNameBuilder = new StringBuilder(OVERRIDE_SIGN + resource.resourceFile);
                 while ((overrideResource = ClassLoader.getSystemResource(resourceNameBuilder.toString())) != null) {
                     try (InputStream resourceStream = overrideResource.openStream()) {
                         properties.load(resourceStream);
@@ -103,7 +100,7 @@ public enum R {
                         properties.put(key, systemValue);
                     }
                 }
-                
+
                 // Overrides properties by systems properties (java arguments)
                 for (Object key : properties.keySet()) {
                     String systemValue = System.getProperty((String) key);
@@ -114,7 +111,7 @@ public enum R {
                 if (resource.resourceFile.contains(CONFIG.resourceFile)) {
                     // no need to read env variables using System.getenv()
                     final String prefix = SpecialKeywords.CAPABILITIES + ".";
-                    
+
                     // read all java arguments and redefine capabilities.* items
                     @SuppressWarnings({ "unchecked", "rawtypes" })
                     Map<String, String> javaProperties = new HashMap(System.getProperties());
@@ -164,16 +161,16 @@ public enum R {
     private static Properties collect(String resourceName) throws IOException {
         ClassLoader classLoader = ClassLoader.getSystemClassLoader();
         Properties assembledProperties = new Properties();
-            Enumeration<URL> resourceURLs = classLoader.getResources(resourceName);
-            while (resourceURLs.hasMoreElements()) {
-                Properties tempProperties = new Properties();
-                URL url = resourceURLs.nextElement();
+        Enumeration<URL> resourceURLs = classLoader.getResources(resourceName);
+        while (resourceURLs.hasMoreElements()) {
+            Properties tempProperties = new Properties();
+            URL url = resourceURLs.nextElement();
 
-                try (InputStream stream = url.openStream()) {
-                    tempProperties.load(stream);
-                    assembledProperties.putAll(tempProperties);
-                }
+            try (InputStream stream = url.openStream()) {
+                tempProperties.load(stream);
+                assembledProperties.putAll(tempProperties);
             }
+        }
         return assembledProperties;
     }
 
@@ -216,18 +213,17 @@ public enum R {
      */
     public void put(String key, String value, boolean currentTestOnly) {
         if (currentTestOnly) {
-            // do not warn user about this system property update
-            if (!Configuration.Parameter.ERROR_SCREENSHOT.getKey().equals(key)) {
-                LOGGER.warn("Override property for current test '{}={}'!", key, value);
-            }
-            //declare temporary property key
+
+            LOGGER.warn("Override property for current test '{}={}'!", key, value);
+
+            // declare temporary property key
             getTestProperties().put(key, value);
         } else {
-            // override globally configuration map property 
+            // override globally configuration map property
             propertiesHolder.get(resourceFile).put(key, value);
         }
     }
-    
+
     /**
      * Verify if key is declared in data map.
      * 
@@ -253,24 +249,23 @@ public enum R {
                 PROPERTY_OVERWRITE_NOTIFICATIONS.set(new HashMap<>());
             }
             // do not warn user about this system property update
-            if (!Configuration.Parameter.ERROR_SCREENSHOT.getKey().equals(key) &&
-                    !(PROPERTY_OVERWRITE_NOTIFICATIONS.get().containsKey(key) &&
+            if (!(PROPERTY_OVERWRITE_NOTIFICATIONS.get().containsKey(key) &&
                             value.equals(PROPERTY_OVERWRITE_NOTIFICATIONS.get().get(key)))) {
                 LOGGER.warn("Overridden '{}={}' property will be used for current test!", key, value);
                 PROPERTY_OVERWRITE_NOTIFICATIONS.get().put(key, value);
             }
             return value;
         }
-        
+
         value = CONFIG.resourceFile.equals(resourceFile) ? PlaceholderResolver.resolve(propertiesHolder.get(resourceFile), key)
                 : propertiesHolder.get(resourceFile).getProperty(key);
 
-        // [VD] Decryption is prohibited here otherwise we have plain sensitive information in logs! 
+        // [VD] Decryption is prohibited here otherwise we have plain sensitive information in logs!
 
         // [VD] as designed empty MUST be returned
         return value != null ? value : StringUtils.EMPTY;
     }
-    
+
     /**
      * Return decrypted value either from system properties or config properties context.
      * System properties have higher priority.
@@ -298,7 +293,7 @@ public enum R {
      * 
      * @param key Requested key
      * @return value long
-     */    
+     */
     public long getLong(String key) {
         return Long.parseLong(get(key));
     }
@@ -308,7 +303,7 @@ public enum R {
      * 
      * @param key Requested key
      * @return value Double
-     */    
+     */
     public double getDouble(String key) {
         return Double.parseDouble(get(key));
     }
@@ -330,44 +325,44 @@ public enum R {
         return path;
     }
 
-	public Properties getProperties() {
+    public Properties getProperties() {
         Properties globalProp = new Properties();
         globalProp.putAll(propertiesHolder.get(resourceFile));
-		// Glodal properties will be updated with test specific properties
-		if (!getTestProperties().isEmpty()) {
-			Properties testProp = testProperties.get();
-			LOGGER.debug("CurrentTestOnly properties has [{}] entries.", testProp.size());
-			LOGGER.debug("{}", testProp);
-			@SuppressWarnings({ "unchecked", "rawtypes" })
-			Map<String, String> testCapabilitiesMap = new HashMap(testProp);
-			testCapabilitiesMap.keySet().stream().forEach(i -> {
-				if (globalProp.containsKey(i)) {
-					LOGGER.debug(String.format(
-							"Global properties already contains key --- %s --- with value --- %s ---. Global property will be overridden by  --- %s --- from test properties.",
-							i, globalProp.get(i), testProp.get(i)));
-				} else {
-					LOGGER.debug(String.format(
-							"Global properties isn't contains key --- %s ---.  Global key --- %s --- will be set to --- %s ---  from test properties.",
-							i, i, testProp.get(i)));
-				}
-				globalProp.setProperty(i, (String) testProp.get(i));
-			});
-		}
-		return globalProp;
-	}
-    
+        // Glodal properties will be updated with test specific properties
+        if (!getTestProperties().isEmpty()) {
+            Properties testProp = testProperties.get();
+            LOGGER.debug("CurrentTestOnly properties has [{}] entries.", testProp.size());
+            LOGGER.debug("{}", testProp);
+            @SuppressWarnings({ "unchecked", "rawtypes" })
+            Map<String, String> testCapabilitiesMap = new HashMap(testProp);
+            testCapabilitiesMap.keySet().stream().forEach(i -> {
+                if (globalProp.containsKey(i)) {
+                    LOGGER.debug(String.format(
+                            "Global properties already contains key --- %s --- with value --- %s ---. Global property will be overridden by  --- %s --- from test properties.",
+                            i, globalProp.get(i), testProp.get(i)));
+                } else {
+                    LOGGER.debug(String.format(
+                            "Global properties isn't contains key --- %s ---.  Global key --- %s --- will be set to --- %s ---  from test properties.",
+                            i, i, testProp.get(i)));
+                }
+                globalProp.setProperty(i, (String) testProp.get(i));
+            });
+        }
+        return globalProp;
+    }
+
     public void clearTestProperties() {
         testProperties.remove();
         PROPERTY_OVERWRITE_NOTIFICATIONS.remove();
     }
-    
+
     public Properties getTestProperties() {
         if (testProperties.get() == null) {
             // init temporary properties at first call
             Properties properties = new Properties();
             testProperties.set(properties);
         }
-        
+
         return testProperties.get();
     }
 

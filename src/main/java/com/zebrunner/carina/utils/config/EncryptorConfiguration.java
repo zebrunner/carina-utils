@@ -39,10 +39,7 @@ public class EncryptorConfiguration extends Configuration {
     @Override
     public String toString() {
         Optional<String> asString = asString(Parameter.values());
-        if (asString.isEmpty()) {
-            return "";
-        }
-        return "\n=========== Encryptor configuration ===========\n" +
-                asString.get();
+        return asString.map(s -> "\n=========== Encryptor configuration ===========\n" +
+                s).orElse("");
     }
 }
