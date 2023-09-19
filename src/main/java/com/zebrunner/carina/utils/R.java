@@ -46,8 +46,6 @@ public enum R {
 
     TESTDATA("testdata.properties"),
 
-    EMAIL("email.properties"),
-
     REPORT("report.properties"),
 
     DATABASE("database.properties"),
