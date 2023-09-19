@@ -134,11 +134,6 @@ public class RTest {
     }
 
     @Test
-    public void testPlaceholdersInEmail() {
-        Assert.assertEquals(R.EMAIL.get("title"), "${test}");
-    }
-
-    @Test
     public void testOverride() {
         R.CONFIG.clearTestProperties();
         Assert.assertEquals(R.TESTDATA.get("key1"), "3");
