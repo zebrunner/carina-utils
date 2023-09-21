@@ -18,158 +18,218 @@ package com.zebrunner.carina.utils.report;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.lang.invoke.MethodHandles;
 import java.net.Authenticator;
 import java.net.PasswordAuthentication;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.FileSystems;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.UUID;
+
 import org.apache.commons.lang3.ClassUtils;
+import org.apache.commons.lang3.RegExUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.concurrent.ConcurrentException;
+import org.apache.commons.lang3.concurrent.LazyInitializer;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.commons.lang3.reflect.MethodUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.zebrunner.carina.utils.ZipManager;
-import com.zebrunner.carina.utils.common.CommonUtils;
 import com.zebrunner.carina.utils.config.Configuration;
 
-/*
- * Be careful with LOGGER usage here because potentially it could do recursive call together with ThreadLogAppender functionality
+/**
+ * Offers methods for working with test folders.<br>
+ * Important: <b>Be careful with LOGGER here because potentially it could do recursive call together with ThreadLogAppender functionality</b>
  */
 public class ReportContext {
     private static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
-    private static final String ROOT_DIR_SYSTEM_PROPERTY = "user.dir";
-    private static final String FOLDERS_FORMAT = "%s/%s";
-    private static final String SPACE_PATTERN = "[^a-zA-Z0-9.-]";
     private static final String GALLERY_ZIP = "gallery-lib.zip";
-    public static final String TEMP_FOLDER = "temp";
-    private static File baseDirectory = null;
-    private static File tempDirectory;
-    private static long rootID;
-    private static final ThreadLocal<File> testDirectory = new InheritableThreadLocal<>();
-    private static final ThreadLocal<Boolean> isCustomTestDirName = new InheritableThreadLocal<>();
+    private static final ThreadLocal<LazyInitializer<Path>> TEST_DIRECTORY = new InheritableThreadLocal<>();
+
+    private static final LazyInitializer<Path> PROJECT_REPORT_DIRECTORY_INITIALIZER = new LazyInitializer<>() {
+        @Override
+        protected Path initialize() throws ConcurrentException {
+            try {
+                // "user.dir" - root dir system property
+                Path projectReportDirectory = Path.of(URLDecoder.decode(System.getProperty("user.dir"), StandardCharsets.UTF_8))
+                        .resolve(Configuration.getRequired(Configuration.Parameter.PROJECT_REPORT_DIRECTORY));
+
+                if (!Files.isDirectory(projectReportDirectory)) {
+                    Files.createDirectory(projectReportDirectory);
+                }
+                return projectReportDirectory;
+            } catch (IOException e) {
+                return ExceptionUtils.rethrow(e);
+            }
+        }
+    };
+
+    private static final LazyInitializer<Path> BASE_DIRECTORY_INITIALIZER = new LazyInitializer<>() {
+        @Override
+        protected Path initialize() throws ConcurrentException {
+            try {
+                Path baseDirectory = Files.createDirectory(getProjectReportFolder()
+                        .resolve(String.valueOf(System.currentTimeMillis())));
+                copyGalleryLib();
+                return baseDirectory;
+            } catch (IOException e) {
+                return ExceptionUtils.rethrow(e);
+            }
+        }
+    };
+
+    private static final LazyInitializer<Path> TEMP_DIRECTORY_INITIALIZER = new LazyInitializer<>() {
+        @Override
+        protected Path initialize() throws ConcurrentException {
+            try {
+                Path path = BASE_DIRECTORY_INITIALIZER.get()
+                        .resolve("temp");
+                return Files.createDirectory(path);
+            } catch (IOException e) {
+                return ExceptionUtils.rethrow(e);
+            }
+        }
+    };
 
     private ReportContext() {
+        // hide
     }
 
     /**
-     * Creates base directory for tests execution to save screenshots, logs etc
+     * Get directory of current test run.
+     * If the folder does not exist, it will be created. <br>
+     * Example folder name: {@code 1695289407136}
      * 
-     * @return base root folder for run.
+     * @return {@link Path}
      */
-    public static File getBaseDir() {
-        if (baseDirectory == null) {
-            File projectRoot = new File(String.format(FOLDERS_FORMAT, URLDecoder.decode(System.getProperty(ROOT_DIR_SYSTEM_PROPERTY),
-                    StandardCharsets.UTF_8),
-                    Configuration.getRequired(Configuration.Parameter.PROJECT_REPORT_DIRECTORY)));
-            if (!projectRoot.exists()) {
-                boolean isCreated = projectRoot.mkdirs();
-                if (!isCreated) {
-                    throw new RuntimeException("Folder not created: " + projectRoot.getAbsolutePath());
+    public static Path getBaseDirectory() {
+        try {
+            return BASE_DIRECTORY_INITIALIZER.get();
+        } catch (ConcurrentException e) {
+            return ExceptionUtils.rethrow(e);
+        }
+    }
+
+    /**
+     * Get temporary directory. This directory is located
+     * (will be located if not already created) in the base directory with the {@code temp} name
+     * 
+     * @return {@link Path}
+     */
+    public static Path getTempDirectory() {
+        try {
+            return TEMP_DIRECTORY_INITIALIZER.get();
+        } catch (ConcurrentException e) {
+            return ExceptionUtils.rethrow(e);
+        }
+    }
+
+    /**
+     * Get test directory.
+     * If the folder does not exist, it will be created. <br>
+     * Example folder name: {@code 4e2abbca-6512-460a-a280-feeb3dd8b0ee}. If folder renamed using {@link #renameTestDirectory(String)},
+     * it will have another name.
+     * <br>
+     * For the cases when this method called before test folder initialized, base directory will be used.
+     * 
+     * @return {@link Path}
+     */
+    public static Path getTestDirectory() {
+        if (TEST_DIRECTORY.get() == null) {
+            return getBaseDirectory();
+        }
+
+        try {
+            return TEST_DIRECTORY.get()
+                    .get();
+        } catch (ConcurrentException e) {
+            return ExceptionUtils.rethrow(e);
+        }
+    }
+
+    /**
+     * Initialize test directory
+     * <b>For internal usage only</b>
+     * 
+     * @return {@link Path}
+     */
+    public static Path initTestDirectory() {
+        if (TEST_DIRECTORY.get() == null) {
+            TEST_DIRECTORY.set(new LazyInitializer<Path>() {
+                @Override
+                protected Path initialize() throws ConcurrentException {
+                    try {
+                        return Files.createDirectory(getBaseDirectory().
+                                resolve(UUID.randomUUID().toString()));
+                    } catch (IOException e) {
+                        return ExceptionUtils.rethrow(e);
+                    }
+                }
+            });
+        }
+        try {
+            return TEST_DIRECTORY.get().get();
+        } catch (ConcurrentException e) {
+            return ExceptionUtils.rethrow(e);
+        }
+    }
+
+    /**
+     * Rename test directory.
+     * 
+     * @param name custom name of the test directory
+     * @return {@link Path}
+     */
+    public static Path renameTestDirectory(String name) {
+        if (StringUtils.isBlank(name)) {
+            throw new IllegalArgumentException("Name must not be null, empty or contains whitespaces only.");
+        }
+
+        if (TEST_DIRECTORY.get() == null) {
+            throw new IllegalStateException("Cannot rename test directory. Method called before test directory initialized.");
+        }
+
+        // replace spaces by _
+        TEST_DIRECTORY.set(new CustomInitializer<>(RegExUtils.replaceAll(name, "[^a-zA-Z0-9.-]", "_")) {
+            @Override
+            protected Path initialize() throws ConcurrentException {
+                try {
+                    // close ThreadLogAppender resources before renaming
+                    stopThreadLogAppender();
+                    return Files.move(getTestDirectory(), getBaseDirectory().resolve(getValue()));
+                } catch (IOException e) {
+                    return ExceptionUtils.rethrow(e);
                 }
             }
-            rootID = System.currentTimeMillis();
-            String directory = String.format("%s/%s/%d", URLDecoder.decode(System.getProperty(ROOT_DIR_SYSTEM_PROPERTY), StandardCharsets.UTF_8),
-                    Configuration.getRequired(Configuration.Parameter.PROJECT_REPORT_DIRECTORY), rootID);
-            File baseDirectoryTmp = new File(directory);
-            boolean isCreated = baseDirectoryTmp.mkdir();
-            if (!isCreated) {
-                throw new RuntimeException("Folder not created: " + directory);
-            }
-
-            baseDirectory = baseDirectoryTmp;
-
-            copyGalleryLib();
+        });
+        try {
+            return TEST_DIRECTORY.get()
+                    .get();
+        } catch (ConcurrentException e) {
+            return ExceptionUtils.rethrow(e);
         }
-        return baseDirectory;
     }
 
     /**
-     * Creates temp directory for tests execution
-     * 
-     * @return temp folder for run.
+     * <b>For internal usage only</b>
      */
-    public static synchronized File getTempDir() {
-        if (tempDirectory == null) {
-            tempDirectory = new File(String.format(FOLDERS_FORMAT, getBaseDir().getAbsolutePath(), TEMP_FOLDER));
-            boolean isCreated = tempDirectory.mkdir();
-            if (!isCreated) {
-                throw new RuntimeException("Folder not created: " + tempDirectory.getAbsolutePath());
-            }
-        }
-        return tempDirectory;
-    }
-
-    /**
-     * Creates unique test directory for test
-     * 
-     * @return test log/screenshot folder.
-     */
-    public static File getTestDir() {
-        return getTestDir(StringUtils.EMPTY);
-    }
-
-    /**
-     * Creates unique test directory for test
-     * 
-     * @param dirName String
-     * @return test log/screenshot folder.
-     */
-    private static File getTestDir(String dirName) {
-        File testDir = testDirectory.get();
-        if (testDir == null) {
-            testDir = createTestDir(dirName);
-        }
-        return testDir;
-    }
-
-    /**
-     * Rename test directory to custom name.
-     * 
-     * @param dirName String
-     * @return test report dir
-     */
-    public static synchronized File setCustomTestDirName(String dirName) {
-        isCustomTestDirName.set(Boolean.FALSE);
-        File testDir = testDirectory.get();
-        if (testDir == null) {
-            LOGGER.debug("Test dir will be created.");
-            testDir = getTestDir(dirName);
-        } else {
-            LOGGER.debug("Test dir will be renamed to custom name.");
-            renameTestDir(dirName);
-        }
-        isCustomTestDirName.set(Boolean.TRUE);
-        return testDir;
-    }
-
+    @SuppressWarnings("unused")
     public static void emptyTestDirData() {
-        testDirectory.remove();
-        isCustomTestDirName.set(Boolean.FALSE);
+        TEST_DIRECTORY.remove();
         stopThreadLogAppender();
     }
 
-    public static synchronized File createTestDir() {
-        return createTestDir(UUID.randomUUID().toString());
-    }
-
-    private static synchronized File createTestDir(String dirName) {
-        File testDir;
-        String directory = String.format(FOLDERS_FORMAT, getBaseDir(), dirName);
-
-        testDir = new File(directory);
-        if (!testDir.exists()) {
-            testDir.mkdirs();
-            if (!testDir.exists()) {
-                throw new RuntimeException("Test Folder(s) not created: " + testDir.getAbsolutePath());
-            }
+    private static Path getProjectReportFolder() {
+        try {
+            return PROJECT_REPORT_DIRECTORY_INITIALIZER.get();
+        } catch (ConcurrentException e) {
+            return ExceptionUtils.rethrow(e);
         }
-
-        testDirectory.set(testDir);
-        return testDir;
     }
 
     private static void stopThreadLogAppender() {
@@ -186,69 +246,100 @@ public class ReportContext {
         }
     }
 
-    private static File renameTestDir(String test) {
-        File testDir = testDirectory.get();
-        initIsCustomTestDir();
-        if (testDir != null && !isCustomTestDirName.get()) {
-            File newTestDir = new File(String.format(FOLDERS_FORMAT, getBaseDir(), test.replaceAll(SPACE_PATTERN, "_")));
+    private abstract static class CustomInitializer<T> extends LazyInitializer<T> {
+        private final String value;
 
-            if (!newTestDir.exists()) {
-                boolean isRenamed = false;
-                int retry = 5;
-                while (!isRenamed && retry > 0) {
-                    // close ThreadLogAppender resources before renaming
-                    stopThreadLogAppender();
-                    isRenamed = testDir.renameTo(newTestDir);
-                    if (!isRenamed) {
-                        CommonUtils.pause(1);
-                        System.err.println("renaming failed to '" + newTestDir + "'");
-                    }
-                    retry--;
-                }
-
-                if (isRenamed) {
-                    testDirectory.set(newTestDir);
-                    System.out.println("Test directory renamed to '" + newTestDir + "'");
-                }
-            }
-        } else {
-            LOGGER.error("Unexpected case with absence of test.log for '{}'", test);
+        public CustomInitializer(String value) {
+            super();
+            this.value = value;
         }
 
-        return testDir;
-    }
-
-    private static void initIsCustomTestDir() {
-        if (isCustomTestDirName.get() == null) {
-            isCustomTestDirName.set(Boolean.FALSE);
+        public String getValue() {
+            return this.value;
         }
     }
 
     private static void copyGalleryLib() {
-        String filesSeparator = FileSystems.getDefault().getSeparator();
-        File reportsRootDir = new File(
-                System.getProperty(ROOT_DIR_SYSTEM_PROPERTY) + "/" + Configuration.getRequired(Configuration.Parameter.PROJECT_REPORT_DIRECTORY));
-        if (!new File(reportsRootDir.getAbsolutePath() + "/gallery-lib").exists()) {
+        Path galleryLib = getProjectReportFolder().resolve("gallery-lib");
+        if (!Files.exists(galleryLib)) {
             try {
                 InputStream is = ClassLoader.getSystemClassLoader().getResourceAsStream(GALLERY_ZIP);
                 if (is == null) {
                     System.out.println("Unable to find in classpath: " + GALLERY_ZIP);
                     return;
                 }
-                ZipManager.copyInputStream(is, new BufferedOutputStream(new FileOutputStream(reportsRootDir.getAbsolutePath() + "/"
-                        + GALLERY_ZIP)));
-                ZipManager.unzip(reportsRootDir.getAbsolutePath() + filesSeparator + GALLERY_ZIP, reportsRootDir.getAbsolutePath());
-                File zip = new File(reportsRootDir.getAbsolutePath() + filesSeparator + GALLERY_ZIP);
-                boolean isSuccessful = zip.delete();
-                if (!isSuccessful) {
-                    System.out.println("Unable to delete zip: " + zip.getAbsolutePath());
-                }
+                ZipManager.copyInputStream(is,
+                        new BufferedOutputStream(new FileOutputStream(getProjectReportFolder().resolve(GALLERY_ZIP).toFile())));
+                ZipManager.unzip(getProjectReportFolder().resolve(GALLERY_ZIP).toFile().toString(), getProjectReportFolder().toString());
+                Files.delete(getProjectReportFolder().resolve(GALLERY_ZIP));
             } catch (Exception e) {
-                System.out.println("Unable to copyGalleryLib! " + e);
+                System.out.println("Unable to copyGalleryLib! Message: " + e.getMessage());
             }
         }
     }
 
+    /**
+     * Creates base directory for tests execution to save screenshots, logs etc
+     * 
+     * @deprecated use {@link #getBaseDirectory()} instead
+     * @return base root folder for run.
+     */
+    @Deprecated(forRemoval = true, since = "1.2.6")
+    public static File getBaseDir() {
+        try {
+            return BASE_DIRECTORY_INITIALIZER.get()
+                    .toFile();
+        } catch (ConcurrentException e) {
+            return ExceptionUtils.rethrow(e);
+        }
+    }
+
+    /**
+     * Creates temp directory for tests execution
+     * 
+     * @deprecated use {@link #getTempDirectory()} instead
+     * @return temp folder for run.
+     */
+    @Deprecated(forRemoval = true, since = "1.2.6")
+    public static synchronized File getTempDir() {
+        return getTempDirectory().toFile();
+    }
+
+    /**
+     * Creates unique test directory for test
+     * 
+     * @deprecated use {@link #getTestDirectory()} instead
+     * @return test log/screenshot folder.
+     */
+    @Deprecated(forRemoval = true, since = "1.2.6")
+    public static File getTestDir() {
+        return getTestDirectory().toFile();
+    }
+
+    /**
+     * Rename test directory to custom name.
+     * 
+     * @deprecated use {@link #renameTestDirectory(String)} instead
+     * @param dirName String
+     * @return test report dir
+     */
+    @Deprecated(forRemoval = true, since = "1.2.6")
+    public static synchronized File setCustomTestDirName(String dirName) {
+        return renameTestDirectory(dirName).toFile();
+    }
+
+    /**
+     * @deprecated use {@link #getTestDirectory()} instead
+     */
+    @Deprecated(forRemoval = true, since = "1.2.6")
+    public static synchronized File createTestDir() {
+        return initTestDirectory().toFile();
+    }
+
+    /**
+     * @deprecated move to the places where it used (carina-webdriver)
+     */
+    @Deprecated(forRemoval = true, since = "1.2.6")
     public static class CustomAuthenticator extends Authenticator {
 
         String username;
