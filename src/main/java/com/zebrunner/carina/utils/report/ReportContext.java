@@ -57,10 +57,11 @@ public class ReportContext {
             try {
                 // "user.dir" - root dir system property
                 Path projectReportDirectory = Path.of(URLDecoder.decode(System.getProperty("user.dir"), StandardCharsets.UTF_8))
-                        .resolve(Configuration.getRequired(Configuration.Parameter.PROJECT_REPORT_DIRECTORY));
+                        .resolve(Configuration.getRequired(Configuration.Parameter.PROJECT_REPORT_DIRECTORY))
+                        .normalize();
 
                 if (!Files.isDirectory(projectReportDirectory)) {
-                    Files.createDirectory(projectReportDirectory);
+                    Files.createDirectories(projectReportDirectory);
                 }
                 return projectReportDirectory;
             } catch (IOException e) {
@@ -73,7 +74,7 @@ public class ReportContext {
         @Override
         protected Path initialize() throws ConcurrentException {
             try {
-                Path baseDirectory = Files.createDirectory(getProjectReportFolder()
+                Path baseDirectory = Files.createDirectories(getProjectReportFolder()
                         .resolve(String.valueOf(System.currentTimeMillis())));
                 copyGalleryLib();
                 return baseDirectory;
@@ -89,7 +90,7 @@ public class ReportContext {
             try {
                 Path path = BASE_DIRECTORY_INITIALIZER.get()
                         .resolve("temp");
-                return Files.createDirectory(path);
+                return Files.createDirectories(path);
             } catch (IOException e) {
                 return ExceptionUtils.rethrow(e);
             }
@@ -164,7 +165,7 @@ public class ReportContext {
                 @Override
                 protected Path initialize() throws ConcurrentException {
                     try {
-                        return Files.createDirectory(getBaseDirectory().
+                        return Files.createDirectories(getBaseDirectory().
                                 resolve(UUID.randomUUID().toString()));
                     } catch (IOException e) {
                         return ExceptionUtils.rethrow(e);
