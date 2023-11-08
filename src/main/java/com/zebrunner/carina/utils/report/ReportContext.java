@@ -165,8 +165,7 @@ public class ReportContext {
                 @Override
                 protected Path initialize() throws ConcurrentException {
                     try {
-                        return Files.createDirectories(getBaseDirectory().
-                                resolve(UUID.randomUUID().toString()));
+                        return Files.createDirectories(getBaseDirectory().resolve(UUID.randomUUID().toString()));
                     } catch (IOException e) {
                         return ExceptionUtils.rethrow(e);
                     }
@@ -196,13 +195,13 @@ public class ReportContext {
         }
 
         // replace spaces by _
-        TEST_DIRECTORY.set(new CustomInitializer<>(RegExUtils.replaceAll(name, "[^a-zA-Z0-9.-]", "_")) {
+        TEST_DIRECTORY.set(new RenameTestFolderInitializer<>(getTestDirectory(), RegExUtils.replaceAll(name, "[^a-zA-Z0-9.-]", "_")) {
             @Override
             protected Path initialize() throws ConcurrentException {
                 try {
                     // close ThreadLogAppender resources before renaming
                     stopThreadLogAppender();
-                    return Files.move(getTestDirectory(), getBaseDirectory().resolve(getValue()));
+                    return Files.move(getPreviousTestDirectoryPath(), getBaseDirectory().resolve(getNewDirectoryName()));
                 } catch (IOException e) {
                     return ExceptionUtils.rethrow(e);
                 }
@@ -247,16 +246,22 @@ public class ReportContext {
         }
     }
 
-    private abstract static class CustomInitializer<T> extends LazyInitializer<T> {
-        private final String value;
+    private abstract static class RenameTestFolderInitializer<T> extends LazyInitializer<T> {
+        private final Path previousTestDirectoryPath;
+        private final String newDirectoryName;
 
-        public CustomInitializer(String value) {
+        public RenameTestFolderInitializer(Path previousTestDirectoryPath, String newDirectoryName) {
             super();
-            this.value = value;
+            this.previousTestDirectoryPath = previousTestDirectoryPath;
+            this.newDirectoryName = newDirectoryName;
         }
 
-        public String getValue() {
-            return this.value;
+        public Path getPreviousTestDirectoryPath() {
+            return this.previousTestDirectoryPath;
+        }
+
+        public String getNewDirectoryName() {
+            return this.newDirectoryName;
         }
     }
 
