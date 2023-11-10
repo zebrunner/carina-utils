@@ -51,13 +51,9 @@
         <java.version>11</java.version>
         <carina-crypto.version>1.0.1</carina-crypto.version>
         <commons-lang3.version>3.12.0</commons-lang3.version>
-        <mongo-java-driver.version>2.11.3</mongo-java-driver.version>
-        <common-net.version>3.9.0</common-net.version>
-        <selenium.version>4.7.0</selenium.version>
-        <jna.version>3.0.9</jna.version>
-        <imgscalr-lib.version>4.2</imgscalr-lib.version>
+        <jna.version>5.13.0</jna.version>
         <slf4j.version>1.7.30</slf4j.version>
-        <testng.version>7.7.1</testng.version>
+        <testng.version>7.8.0</testng.version>
         <maven-source-plugin.version>3.0.1</maven-source-plugin.version>
         <maven-compiler-plugin.version>3.8.0</maven-compiler-plugin.version>
         <maven-javadoc-plugin.version>3.0.1</maven-javadoc-plugin.version>
@@ -99,63 +95,18 @@
             <version>${commons-lang3.version}</version>
         </dependency>
 
-        <!-- todo remove -->
         <dependency>
-            <groupId>org.seleniumhq.selenium</groupId>
-            <artifactId>selenium-support</artifactId>
-            <version>${selenium.version}</version>
-        </dependency>
-
-        <!-- todo remove -->
-        <dependency>
-            <groupId>org.seleniumhq.selenium</groupId>
-            <artifactId>selenium-api</artifactId>
-            <version>${selenium.version}</version>
-        </dependency>
-
-        <!-- todo remove -->
-        <dependency>
-            <groupId>org.seleniumhq.selenium</groupId>
-            <artifactId>selenium-remote-driver</artifactId>
-            <version>${selenium.version}</version>
-        </dependency>
-
-        <!-- todo remove -->
-        <dependency>
-            <groupId>com.sun.jna</groupId>
+            <groupId>net.java.dev.jna</groupId>
             <artifactId>jna</artifactId>
             <version>${jna.version}</version>
         </dependency>
 
-        <!-- todo remove -->
-        <dependency>
-            <groupId>org.mongodb</groupId>
-            <artifactId>mongo-java-driver</artifactId>
-            <version>${mongo-java-driver.version}</version>
-        </dependency>
-
-        <!-- FTP client -->
-        <!-- todo remove -->
-        <dependency>
-            <groupId>commons-net</groupId>
-            <artifactId>commons-net</artifactId>
-            <version>${common-net.version}</version>
-        </dependency>
-
-        <!-- todo remove -->
-        <dependency>
-            <groupId>org.imgscalr</groupId>
-            <artifactId>imgscalr-lib</artifactId>
-            <version>${imgscalr-lib.version}</version>
-        </dependency>
-
         <!-- Test utilities -->
-        <!-- change scope to 'test' -->
         <dependency>
             <groupId>org.testng</groupId>
             <artifactId>testng</artifactId>
             <version>${testng.version}</version>
-            <scope>compile</scope>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 

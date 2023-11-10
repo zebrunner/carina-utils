@@ -37,51 +37,14 @@ public class SpecialKeywords {
     public static final String L10N_PATTERN = String.format("\\{(%s:.[^\\'\\\"]*)}", L10N);
 
     public static final String EXCEL = "\\{excel:.*\\}";
-    /**
-     * @deprecated use {@link com.zebrunner.carina.utils.Configuration.Parameter#CRYPTO_PATTERN} to get pattern from config file
-     */
-    @Deprecated(forRemoval = true, since = "8.0.1")
-    public static final String CRYPT = "\\{crypt:[^\\{\\}]*\\}";
-    /**
-     * @deprecated unused
-     */
-    @Deprecated(forRemoval = true, since = "8.0.1")
-    public static final String CRYPT_WRAPPER = "{crypt:%s}";
+
     public static final String PLACEHOLER = "\\$\\{[^\\{\\}]*\\}";
 
     public static final String MUST_OVERRIDE = "{must_override}";
-    /**
-     * @deprecated use {@link com.zebrunner.carina.utils.commons.SpecialKeywords#DS_ARGS} to set args for data provider from config file
-     */
-    @Deprecated(forRemoval = true, since = "1.0.3")
-    public static final String EXCEL_DS_ARGS = "{excel_ds_args}";
-    /**
-     * @deprecated use {@link com.zebrunner.carina.utils.commons.SpecialKeywords#DS_UID} to set tuid for data provider from config file
-     */
-    @Deprecated(forRemoval = true, since = "1.0.3")
-    public static final String EXCEL_DS_UID = "{excel_ds_uid}";
-    /**
-     * @deprecated unused
-     */
-    @Deprecated(forRemoval = true, since = "1.0.3")
-    public static final String EXCEL_DS_FLAG = "{excel_ds_flag}";
-    /**
-     * @deprecated use {@link com.zebrunner.carina.utils.commons.SpecialKeywords#DS_FILE} to set data provider's path from config file
-     */
-    @Deprecated(forRemoval = true, since = "1.0.3")
-    public static final String EXCEL_DS_FILE = "{excel_ds_file}";
+
     public static final String EXCEL_DS_SHEET = "{excel_ds_sheet}";
-    @Deprecated(since = "8.0.1", forRemoval = true)
-    public static final String EXCEL_DS_CUSTOM_PROVIDER = "{excel_ds_custom_provider}";
-    @Deprecated(since = "8.0.1", forRemoval = true)
-    public static final String DS_CUSTOM_PROVIDER = "{ds_custom_provider}";
     public static final String DS_ARGS = "{ds_args}";
     public static final String DS_UID = "{ds_uid}";
-    /**
-     * @deprecated unused
-     */
-    @Deprecated(forRemoval = true, since = "1.0.3")
-    public static final String DS_FLAG = "{ds_flag}";
     public static final String DS_FILE = "{ds_file}";
     public static final String DS_EXECUTE_COLUMN = "{ds_execute_column}";
     public static final String DS_EXECUTE_VALUE = "{ds_execute_value}";
@@ -119,9 +82,6 @@ public class SpecialKeywords {
     public static final String DESKTOP = "desktop";
     public static final String MOBILE = "mobile";
 
-    @Deprecated(forRemoval = true, since = "1.0.2")
-    public static final String CUSTOM = "custom";
-
     public static final String ANDROID = "Android";
     public static final String IOS = "IOS";
     public static final String MAC = "MAC";
@@ -156,26 +116,6 @@ public class SpecialKeywords {
     public static final String DRIVER_NO_SUCH_WINDOW = "no such window: window was already closed";
 
     // ------------- CARINA CRYPTO DEFAULT PROPERTIES -----------------
-    /**
-     * @deprecated use {@link com.zebrunner.carina.utils.Configuration.Parameter#CRYPTO_ALGORITHM} to get algorithm from config file
-     */
-    @Deprecated(forRemoval = true, since = "8.0.1")
-    public static final String CRYPTO_ALGORITHM = "AES/ECB/PKCS5Padding";
-    /**
-     * @deprecated unused
-     */
-    @Deprecated(forRemoval = true, since = "8.0.1")
-    public static final String CRYPTO_KEY_TYPE = "AES";
-    /**
-     * @deprecated unused
-     */
-    @Deprecated(forRemoval = true, since = "8.0.1")
-    public static final int CRYPTO_KEY_SIZE = 128;
-    /**
-     * @deprecated use {@link com.zebrunner.carina.utils.Configuration.Parameter#CRYPTO_KEY_VALUE} to get crypto key value
-     */
-    @Deprecated(forRemoval = true, since = "8.0.1")
-    public static final String CRYPTO_KEY_PATH = "./src/main/resources/crypto.key";
 
     // ------------- PROXY PROPERTIES ---------------------------------
     public static final String PROXY_SETTER_PACKAGE = "tk.elevenk.proxysetter";
@@ -193,7 +133,6 @@ public class SpecialKeywords {
     public static final String MOBILE_DEVICE_UDID = "capabilities.udid";
     public static final String MOBILE_DEVICE_NAME = "capabilities.deviceName";
     public static final String MOBILE_DEVICE_TYPE = "capabilities.deviceType";
-    //TODO: switch into the PLATFORM_NAME later
     public static final String MOBILE_DEVICE_PLATFORM = "capabilities.platformName";
     public static final String MOBILE_DEVICE_PLATFORM_VERSION = "capabilities.platformVersion";
     public static final String MOBILE_DEVICE_REMOTE_URL = "capabilities.remoteURL";
