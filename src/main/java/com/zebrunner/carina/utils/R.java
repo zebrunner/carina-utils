@@ -36,6 +36,7 @@ import com.zebrunner.carina.crypto.CryptoTool;
 import com.zebrunner.carina.crypto.CryptoToolBuilder;
 import com.zebrunner.carina.utils.commons.SpecialKeywords;
 import com.zebrunner.carina.utils.exception.InvalidConfigurationException;
+import com.zebrunner.carina.utils.resources.ClassLoaderUtil;
 
 /**
  * R - loads properties from resource files.
@@ -66,6 +67,8 @@ public enum R {
     private static final String OVERRIDE_SIGN = "_";
 
     private final String resourceFile;
+    
+    private final static ClassLoader CLASS_LOADER = ClassLoaderUtil.initClassLoader();
 
     // store crypto pattern as pattern to increase performance
     private volatile Pattern cryptoPattern = null;
@@ -99,7 +102,7 @@ public enum R {
 
                 URL overrideResource;
                 StringBuilder resourceNameBuilder = new StringBuilder(OVERRIDE_SIGN  + resource.resourceFile);
-                while ((overrideResource = ClassLoader.getSystemResource(resourceNameBuilder.toString())) != null) {
+                while ((overrideResource = CLASS_LOADER.getResource(resourceNameBuilder.toString())) != null) {
                     try (InputStream resourceStream = overrideResource.openStream()) {
                         properties.load(resourceStream);
                         resourceNameBuilder.insert(0, OVERRIDE_SIGN);
@@ -173,7 +176,7 @@ public enum R {
      * @return true if at least one resource found, false otherwise
      */
     private static boolean isResourceExists(String resourceName) {
-        return ClassLoader.getSystemResource(resourceName) != null;
+        return CLASS_LOADER.getResource(resourceName) != null;
     }
 
     /**
@@ -183,9 +186,8 @@ public enum R {
      * @return collected properties
      */
     private static Properties collect(String resourceName) throws IOException {
-        ClassLoader classLoader = ClassLoader.getSystemClassLoader();
         Properties assembledProperties = new Properties();
-            Enumeration<URL> resourceURLs = classLoader.getResources(resourceName);
+            Enumeration<URL> resourceURLs = CLASS_LOADER.getResources(resourceName);
             while (resourceURLs.hasMoreElements()) {
                 Properties tempProperties = new Properties();
                 URL url = resourceURLs.nextElement();
@@ -389,7 +391,7 @@ public enum R {
     }
 
     public static String getResourcePath(String resource) {
-        String path = StringUtils.removeStart(ClassLoader.getSystemResource(resource).getPath(), "/");
+        String path = StringUtils.removeStart(CLASS_LOADER.getResource(resource).getPath(), "/");
         path = StringUtils.replaceChars(path, "/", "\\");
         path = StringUtils.replaceChars(path, "!", "");
         return path;
