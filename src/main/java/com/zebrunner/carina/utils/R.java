@@ -25,6 +25,9 @@ import java.util.Map;
 import java.util.Properties;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.concurrent.ConcurrentException;
+import org.apache.commons.lang3.concurrent.LazyInitializer;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -58,6 +61,23 @@ public enum R {
 
     private final String resourceFile;
 
+    /**
+     * With some Maven plugins usage (e.g. exec-maven-plugin) SystemClassLoader can
+     * not 'see' project resources. That's why we need a possibility to choose what
+     * ClassLoader instance to use.
+     * todo think about refactoring this code
+     */
+    private static final LazyInitializer<ClassLoader> CLASS_LOADER = new LazyInitializer<>() {
+        @Override
+        protected ClassLoader initialize() {
+            String carinaClassLoader = System.getProperty("carina_class_loader");
+            if (!StringUtils.isEmpty(carinaClassLoader) && Boolean.valueOf(carinaClassLoader)) {
+                return R.class.getClassLoader();
+            }
+            return ClassLoader.getSystemClassLoader();
+        }
+    };
+
     // temporary thread/test properties which is cleaned on afterTest phase for current thread. It can override any value from below R enum maps
     private static ThreadLocal<Properties> testProperties = new ThreadLocal<>();
     private static final ThreadLocal<Map<String, String>> PROPERTY_OVERWRITE_NOTIFICATIONS = new ThreadLocal<>();
@@ -84,7 +104,7 @@ public enum R {
 
                 URL overrideResource;
                 StringBuilder resourceNameBuilder = new StringBuilder(OVERRIDE_SIGN + resource.resourceFile);
-                while ((overrideResource = ClassLoader.getSystemResource(resourceNameBuilder.toString())) != null) {
+                while ((overrideResource = CLASS_LOADER.get().getResource(resourceNameBuilder.toString())) != null) {
                     try (InputStream resourceStream = overrideResource.openStream()) {
                         properties.load(resourceStream);
                         resourceNameBuilder.insert(0, OVERRIDE_SIGN);
@@ -147,7 +167,11 @@ public enum R {
      * @return true if at least one resource found, false otherwise
      */
     private static boolean isResourceExists(String resourceName) {
-        return ClassLoader.getSystemResource(resourceName) != null;
+        try {
+            return CLASS_LOADER.get().getResource(resourceName) != null;
+        }catch (ConcurrentException e) {
+            return ExceptionUtils.rethrow(e);
+        }
     }
 
     /**
@@ -157,19 +181,22 @@ public enum R {
      * @return collected properties
      */
     private static Properties collect(String resourceName) throws IOException {
-        ClassLoader classLoader = ClassLoader.getSystemClassLoader();
-        Properties assembledProperties = new Properties();
-        Enumeration<URL> resourceURLs = classLoader.getResources(resourceName);
-        while (resourceURLs.hasMoreElements()) {
-            Properties tempProperties = new Properties();
-            URL url = resourceURLs.nextElement();
+        try {
+            Properties assembledProperties = new Properties();
+            Enumeration<URL> resourceURLs = CLASS_LOADER.get().getResources(resourceName);
+            while (resourceURLs.hasMoreElements()) {
+                Properties tempProperties = new Properties();
+                URL url = resourceURLs.nextElement();
 
-            try (InputStream stream = url.openStream()) {
-                tempProperties.load(stream);
-                assembledProperties.putAll(tempProperties);
+                try (InputStream stream = url.openStream()) {
+                    tempProperties.load(stream);
+                    assembledProperties.putAll(tempProperties);
+                }
             }
+            return assembledProperties;
+        }catch (ConcurrentException e) {
+            return ExceptionUtils.rethrow(e);
         }
-        return assembledProperties;
     }
 
     R(String resourceKey) {
@@ -317,10 +344,14 @@ public enum R {
     }
 
     public static String getResourcePath(String resource) {
-        String path = StringUtils.removeStart(ClassLoader.getSystemResource(resource).getPath(), "/");
-        path = StringUtils.replaceChars(path, "/", "\\");
-        path = StringUtils.replaceChars(path, "!", "");
-        return path;
+        try {
+            String path = StringUtils.removeStart(CLASS_LOADER.get().getResource(resource).getPath(), "/");
+            path = StringUtils.replaceChars(path, "/", "\\");
+            path = StringUtils.replaceChars(path, "!", "");
+            return path;
+        }catch (ConcurrentException e) {
+            return ExceptionUtils.rethrow(e);
+        }
     }
 
     public Properties getProperties() {
