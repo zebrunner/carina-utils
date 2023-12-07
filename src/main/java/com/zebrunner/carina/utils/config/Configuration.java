@@ -1,5 +1,7 @@
 package com.zebrunner.carina.utils.config;
 
+import java.lang.reflect.InvocationTargetException;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
@@ -9,9 +11,15 @@ import org.apache.commons.lang3.StringUtils;
 import com.zebrunner.carina.utils.R;
 import com.zebrunner.carina.utils.encryptor.EncryptorUtils;
 import com.zebrunner.carina.utils.exception.InvalidConfigurationException;
+import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.apache.commons.lang3.mutable.Mutable;
+import org.apache.commons.lang3.mutable.MutableObject;
+import org.apache.commons.lang3.reflect.ConstructorUtils;
 
 public class Configuration {
     private static final String REQUIRE_VALUE_ERROR_MESSAGE = "Getting the value of parameter '%s' as required failed: the value is missing.";
+
+    private static final MutableObject<IEnvArgResolver> ENV_ARG_RESOLVER = new MutableObject<>(new DefaultEnvArgResolver());
 
     public enum Parameter implements IParameter {
 
@@ -106,7 +114,7 @@ public class Configuration {
             return Optional.empty();
         }
 
-        String value = R.CONFIG.get(environment + "." + parameter);
+        String value = ENV_ARG_RESOLVER.getValue().get(environment, parameter);
         if (value == null || "NULL".equalsIgnoreCase(value) || value.isEmpty()) {
             return Optional.empty();
         }
@@ -191,6 +199,14 @@ public class Configuration {
         return get(parameter, clazz, options)
                 .orElseThrow(() -> new InvalidConfigurationException(
                         String.format(REQUIRE_VALUE_ERROR_MESSAGE, parameter)));
+    }
+
+    public static void setEnvironmentArgumentResolver(Class<? extends IEnvArgResolver> clazz) {
+        try {
+            ENV_ARG_RESOLVER.setValue(ConstructorUtils.invokeConstructor(Objects.requireNonNull(clazz)));
+        } catch (InvocationTargetException | NoSuchMethodException | IllegalAccessException | InstantiationException e) {
+            ExceptionUtils.rethrow(e);
+        }
     }
 
     protected Optional<String> asString(IParameter[] parameters) {
