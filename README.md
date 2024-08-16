@@ -1,4 +1,4 @@
-# Carina utils module
+Carina Utils module
 ==================
 
 Feel free to support the development with a [**donation**](https://www.paypal.com/donate/?hosted_button_id=MNHYYCYHAKUVA) for the next improvements.
