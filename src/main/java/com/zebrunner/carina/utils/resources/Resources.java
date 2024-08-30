@@ -65,7 +65,7 @@ public final class Resources {
     public static Set<URL> getResourceURLs(ResourceURLFilter filter) {
         Set<URL> collectedURLs = new HashSet<>();
         try (URLClassLoader ucl = new URLClassLoader(new URL[] { (R.getClassLoader()).getResource("L10N") },
-                Resources.class.getClassLoader())) {
+                R.getClassLoader())) {
             for (URL url : ucl.getURLs()) {
                 try {
                     iterateEntry(new File(url.toURI()), filter, collectedURLs);
