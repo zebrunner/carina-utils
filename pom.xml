@@ -66,7 +66,7 @@
         <repository>
             <id>zebrunner_snapshots</id>
             <name>zebrunner Snapshots</name>
-            <url>https://nexus.zebrunner.dev/repository/ce-snapshots/</url>
+            <url>https://public-nexus.zebrunner.com/repository/ce-snapshots/</url>
             <releases>
                 <enabled>false</enabled>
             </releases>
@@ -344,7 +344,7 @@
         <snapshotRepository>
             <id>ZBR_Nexus</id>
             <name>Zebrunner Snapshots</name>
-            <url>https://nexus.zebrunner.dev/repository/ce-snapshots/</url>
+            <url>https://public-nexus.zebrunner.com/repository/ce-snapshots/</url>
         </snapshotRepository>
     </distributionManagement>
 </project>
