@@ -91,6 +91,17 @@ public enum R {
         reinit();
     }
 
+    /**
+     * For internal usage only!
+     */
+    public static ClassLoader getClassLoader() {
+        try {
+            return CLASS_LOADER.get();
+        }catch (ConcurrentException e) {
+            return ExceptionUtils.rethrow(e);
+        }
+    }
+
     public static void reinit() {
         for (R resource : values()) {
             try {
