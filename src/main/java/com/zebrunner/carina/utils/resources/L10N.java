@@ -22,6 +22,7 @@ import java.io.Writer;
 import java.lang.invoke.MethodHandles;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -57,7 +58,7 @@ public class L10N {
     private static final Map<String, Locale> LOCALE_MAP = new ConcurrentHashMap<>();
     private static final String L10N_PREFIX = "{L10N:";
     private static final Properties MISSED_RESOURCES = new Properties();
-    private static List<ResourceBundle> resBundles = new ArrayList<>();
+    private static List<ResourceBundle> resBundles = Collections.synchronizedList(new ArrayList<>());
     private static SoftAssert mistakes;
 
     private L10N() {
